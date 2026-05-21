@@ -20,15 +20,15 @@
 
 **Purpose**: Project initialization, monorepo structure, and tooling
 
-- [ ] T001 Initialize pnpm monorepo with pnpm-workspace.yaml and root package.json
-- [ ] T002 [P] Create packages/shared/ package with package.json and tsconfig.json
-- [ ] T003 [P] Create packages/daemon/ package with package.json and tsconfig.json
-- [ ] T004 [P] Create packages/ui/ package with package.json and tsconfig.json
-- [ ] T005 Create tsconfig.base.json with shared TypeScript configuration (ESM, strict, project references)
-- [ ] T006 [P] Configure ESLint and Prettier in root with TypeScript support
-- [ ] T007 [P] Configure Vitest in root vitest.workspace.ts for monorepo testing
-- [ ] T008 Install all dependencies per plan.md (Hono, ws, better-sqlite3, node-pty, Zod, React, Vite, Zustand, xterm.js, Shiki, etc.)
-- [ ] T009 Add root package.json scripts: dev, build, test, typecheck, lint
+- [x] T001 Initialize pnpm monorepo with pnpm-workspace.yaml and root package.json
+- [x] T002 [P] Create packages/shared/ package with package.json and tsconfig.json
+- [x] T003 [P] Create packages/daemon/ package with package.json and tsconfig.json
+- [x] T004 [P] Create packages/ui/ package with package.json and tsconfig.json
+- [x] T005 Create tsconfig.base.json with shared TypeScript configuration (ESM, strict, project references)
+- [x] T006 [P] Configure ESLint and Prettier in root with TypeScript support
+- [x] T007 [P] Configure Vitest in root vitest.workspace.ts for monorepo testing
+- [x] T008 Install all dependencies per plan.md (Hono, ws, better-sqlite3, node-pty, Zod, React, Vite, Zustand, xterm.js, Shiki, etc.)
+- [x] T009 Add root package.json scripts: dev, build, test, typecheck, lint
 
 ---
 
@@ -38,27 +38,27 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T010 Define NormalizedEvent Zod schemas (discriminated union) in packages/shared/src/schemas/events.ts
-- [ ] T011 [P] Define API request/response Zod schemas in packages/shared/src/schemas/api.ts
-- [ ] T012 [P] Define shared constants (ports, risk levels, event types) in packages/shared/src/constants/index.ts
-- [ ] T013 [P] Define TypeScript types exported from packages/shared/src/types/index.ts
-- [ ] T014 Create SQLite database schema and initialization script in packages/daemon/src/db/schema.ts (all tables: users, agents, conversations, events, approvals, etc.)
-- [ ] T015 Implement database access layer (query helpers, prepared statements) in packages/daemon/src/db/queries.ts
-- [ ] T016 Implement EventBus (typed EventEmitter) in packages/daemon/src/event-bus/index.ts
-- [ ] T017 [P] Implement JWT auth utilities (sign, verify, middleware) in packages/daemon/src/auth/index.ts
-- [ ] T018 Implement Hono REST API server skeleton with auth middleware in packages/daemon/src/api/index.ts
-- [ ] T019 Implement WebSocket server with connection management in packages/daemon/src/ws/index.ts
-- [ ] T020 Implement event persistence (append to SQLite, assign sequence_number) in packages/daemon/src/event-bus/persist.ts
-- [ ] T021 Implement WebSocket event broadcast (subscribe/unsubscribe per conversation) in packages/daemon/src/ws/broadcast.ts
-- [ ] T022 Implement sequence-number replay on WebSocket reconnect (lastSeenSequence → replay → catchup_complete) in packages/daemon/src/ws/replay.ts
-- [ ] T023 Create daemon entry point that starts HTTP server + WS server + Hook server in packages/daemon/src/index.ts
-- [ ] T024 [P] Setup Vite + React project skeleton in packages/ui/ (main.tsx, app.tsx, vite.config.ts with proxy to daemon)
-- [ ] T025 [P] Implement Zustand store skeleton with slices (auth, conversations, messages, approvals) in packages/ui/src/stores/
-- [ ] T026 [P] Implement WebSocket client service (connect, reconnect with exponential backoff, sequence replay) in packages/ui/src/services/ws-client.ts
-- [ ] T027 [P] Implement REST API client service (fetch wrapper with JWT auth) in packages/ui/src/services/api-client.ts
-- [ ] T028 Implement auth API routes (register, login) in packages/daemon/src/api/auth.ts
-- [ ] T029 [P] Implement login/register pages in packages/ui/src/pages/auth.tsx
-- [ ] T030 Implement auth guard (redirect to login if no token) in packages/ui/src/components/auth-guard.tsx
+- [x] T010 Define NormalizedEvent Zod schemas (discriminated union) in packages/shared/src/schemas/events.ts
+- [x] T011 [P] Define API request/response Zod schemas in packages/shared/src/schemas/api.ts
+- [x] T012 [P] Define shared constants (ports, risk levels, event types) in packages/shared/src/constants/index.ts
+- [x] T013 [P] Define TypeScript types exported from packages/shared/src/types/index.ts
+- [x] T014 Create SQLite database schema and initialization script in packages/daemon/src/db/schema.ts (all tables: users, agents, conversations, events, approvals, etc.)
+- [x] T015 Implement database access layer (query helpers, prepared statements) in packages/daemon/src/db/queries.ts
+- [x] T016 Implement EventBus (typed EventEmitter) in packages/daemon/src/event-bus/index.ts
+- [x] T017 [P] Implement JWT auth utilities (sign, verify, middleware) in packages/daemon/src/auth/index.ts
+- [x] T018 Implement Hono REST API server skeleton with auth middleware in packages/daemon/src/api/index.ts
+- [x] T019 Implement WebSocket server with connection management in packages/daemon/src/ws/index.ts
+- [x] T020 Implement event persistence (append to SQLite, assign sequence_number) in packages/daemon/src/event-bus/persist.ts
+- [x] T021 Implement WebSocket event broadcast (subscribe/unsubscribe per conversation) in packages/daemon/src/ws/broadcast.ts
+- [x] T022 Implement sequence-number replay on WebSocket reconnect (lastSeenSequence → replay → catchup_complete) in packages/daemon/src/ws/replay.ts
+- [x] T023 Create daemon entry point that starts HTTP server + WS server + Hook server in packages/daemon/src/index.ts
+- [x] T024 [P] Setup Vite + React project skeleton in packages/ui/ (main.tsx, app.tsx, vite.config.ts with proxy to daemon)
+- [x] T025 [P] Implement Zustand store skeleton with slices (auth, conversations, messages, approvals) in packages/ui/src/stores/
+- [x] T026 [P] Implement WebSocket client service (connect, reconnect with exponential backoff, sequence replay) in packages/ui/src/services/ws-client.ts
+- [x] T027 [P] Implement REST API client service (fetch wrapper with JWT auth) in packages/ui/src/services/api-client.ts
+- [x] T028 Implement auth API routes (register, login) in packages/daemon/src/api/auth.ts
+- [x] T029 [P] Implement login/register pages in packages/ui/src/pages/auth.tsx
+- [x] T030 Implement auth guard (redirect to login if no token) in packages/ui/src/components/auth-guard.tsx
 
 **Checkpoint**: Foundation ready - daemon starts, database initialized, WebSocket connects, user can register/login
 
@@ -72,25 +72,25 @@
 
 ### Implementation for User Story 1
 
-- [ ] T031 [US1] Implement conversations CRUD API routes in packages/daemon/src/api/conversations.ts
-- [ ] T032 [US1] Implement agents list API route in packages/daemon/src/api/agents.ts
-- [ ] T033 [US1] Seed built-in Agents (Claude Code, Codex) in packages/daemon/src/db/seed.ts
-- [ ] T034 [US1] Implement Claude Code adapter: spawn CLI process with --output-format=stream-json in packages/daemon/src/providers/claude/adapter.ts
-- [ ] T035 [US1] Implement Claude Code Hook server (HTTP POST receiver) in packages/daemon/src/hook-server/index.ts
-- [ ] T036 [US1] Generate temporary Hook relay script (CJS) pointing to Hook server in packages/daemon/src/providers/claude/hook-script.ts
-- [ ] T037 [US1] Implement Claude Code event parser (Hook events → NormalizedEvent) in packages/daemon/src/providers/claude/parser.ts
-- [ ] T038 [US1] Implement send-message API route (creates session, sends user message to Agent) in packages/daemon/src/api/messages.ts
-- [ ] T039 [US1] Implement session manager (create, track, cleanup Agent sessions) in packages/daemon/src/providers/session-manager.ts
-- [ ] T040 [P] [US1] Implement sidebar conversation list component in packages/ui/src/components/sidebar/conversation-list.tsx
-- [ ] T041 [P] [US1] Implement Agent selection panel (modal with Agent cards) in packages/ui/src/components/sidebar/agent-picker.tsx
-- [ ] T042 [US1] Implement chat page layout (sidebar + chat area) in packages/ui/src/pages/chat.tsx
-- [ ] T043 [US1] Implement message input component (multiline, Enter to send, Shift+Enter newline) in packages/ui/src/components/chat/message-input.tsx
-- [ ] T044 [US1] Implement message bubble component (user right-aligned, Agent left-aligned, Markdown rendering) in packages/ui/src/components/chat/message-bubble.tsx
-- [ ] T045 [US1] Implement streaming message display (typing indicator, incremental text) in packages/ui/src/components/chat/streaming-message.tsx
-- [ ] T046 [US1] Implement code block component with Shiki syntax highlighting and copy button in packages/ui/src/components/code/code-block.tsx
-- [ ] T047 [US1] Wire up conversations Zustand slice (CRUD, active conversation, message list) in packages/ui/src/stores/conversations.ts
-- [ ] T048 [US1] Wire up WebSocket event handler to update Zustand store on incoming events in packages/ui/src/services/ws-handler.ts
-- [ ] T049 [US1] Implement virtual scroll for message list (support 10,000+ messages) in packages/ui/src/components/chat/message-list.tsx
+- [x] T031 [US1] Implement conversations CRUD API routes in packages/daemon/src/api/conversations.ts
+- [x] T032 [US1] Implement agents list API route in packages/daemon/src/api/agents.ts
+- [x] T033 [US1] Seed built-in Agents (Claude Code, Codex) in packages/daemon/src/db/seed.ts
+- [x] T034 [US1] Implement Claude Code adapter: spawn CLI process with --output-format=stream-json in packages/daemon/src/providers/claude/adapter.ts
+- [x] T035 [US1] Implement Claude Code Hook server (HTTP POST receiver) in packages/daemon/src/hook-server/index.ts
+- [x] T036 [US1] Generate temporary Hook relay script (CJS) pointing to Hook server in packages/daemon/src/providers/claude/hook-script.ts
+- [x] T037 [US1] Implement Claude Code event parser (Hook events → NormalizedEvent) in packages/daemon/src/providers/claude/parser.ts
+- [x] T038 [US1] Implement send-message API route (creates session, sends user message to Agent) in packages/daemon/src/api/messages.ts
+- [x] T039 [US1] Implement session manager (create, track, cleanup Agent sessions) in packages/daemon/src/providers/session-manager.ts
+- [x] T040 [P] [US1] Implement sidebar conversation list component in packages/ui/src/components/sidebar/conversation-list.tsx
+- [x] T041 [P] [US1] Implement Agent selection panel (modal with Agent cards) in packages/ui/src/components/sidebar/agent-picker.tsx
+- [x] T042 [US1] Implement chat page layout (sidebar + chat area) in packages/ui/src/pages/chat.tsx
+- [x] T043 [US1] Implement message input component (multiline, Enter to send, Shift+Enter newline) in packages/ui/src/components/chat/message-input.tsx
+- [x] T044 [US1] Implement message bubble component (user right-aligned, Agent left-aligned, Markdown rendering) in packages/ui/src/components/chat/message-bubble.tsx
+- [x] T045 [US1] Implement streaming message display (typing indicator, incremental text) in packages/ui/src/components/chat/streaming-message.tsx
+- [x] T046 [US1] Implement code block component with Shiki syntax highlighting and copy button in packages/ui/src/components/code/code-block.tsx
+- [x] T047 [US1] Wire up conversations Zustand slice (CRUD, active conversation, message list) in packages/ui/src/stores/conversations.ts
+- [x] T048 [US1] Wire up WebSocket event handler to update Zustand store on incoming events in packages/ui/src/services/ws-handler.ts
+- [x] T049 [US1] Implement virtual scroll for message list (support 10,000+ messages) in packages/ui/src/components/chat/message-list.tsx
 
 **Checkpoint**: User can register, create a conversation with Claude Code, send messages, and see streaming responses with code highlighting
 
@@ -104,13 +104,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T050 [US2] Add pin/archive/delete endpoints to conversations API in packages/daemon/src/api/conversations.ts
-- [ ] T051 [US2] Add search query support to GET /api/conversations in packages/daemon/src/api/conversations.ts
-- [ ] T052 [US2] Track unread count per conversation (events since last user view) in packages/daemon/src/db/queries.ts
-- [ ] T053 [P] [US2] Implement conversation item component (avatar, name, preview, timestamp, unread badge) in packages/ui/src/components/sidebar/conversation-item.tsx
-- [ ] T054 [P] [US2] Implement search input in sidebar in packages/ui/src/components/sidebar/search-bar.tsx
-- [ ] T055 [US2] Implement conversation context menu (pin, archive, delete) in packages/ui/src/components/sidebar/conversation-menu.tsx
-- [ ] T056 [US2] Update conversations Zustand slice with pin/archive/search/unread state in packages/ui/src/stores/conversations.ts
+- [x] T050 [US2] Add pin/archive/delete endpoints to conversations API in packages/daemon/src/api/conversations.ts
+- [x] T051 [US2] Add search query support to GET /api/conversations in packages/daemon/src/api/conversations.ts
+- [x] T052 [US2] Track unread count per conversation (events since last user view) in packages/daemon/src/db/queries.ts
+- [x] T053 [P] [US2] Implement conversation item component (avatar, name, preview, timestamp, unread badge) in packages/ui/src/components/sidebar/conversation-item.tsx
+- [x] T054 [P] [US2] Implement search input in sidebar in packages/ui/src/components/sidebar/search-bar.tsx
+- [x] T055 [US2] Implement conversation context menu (pin, archive, delete) in packages/ui/src/components/sidebar/conversation-menu.tsx
+- [x] T056 [US2] Update conversations Zustand slice with pin/archive/search/unread state in packages/ui/src/stores/conversations.ts
 
 **Checkpoint**: User can manage multiple conversations fluidly — search, pin, archive, see unread counts
 
@@ -124,16 +124,16 @@
 
 ### Implementation for User Story 3
 
-- [ ] T057 [US3] Implement approval queue manager (register, decide, timeout) in packages/daemon/src/approval/queue.ts
-- [ ] T058 [US3] Implement risk classification engine (tool → risk level mapping) in packages/daemon/src/approval/risk-classifier.ts
-- [ ] T059 [US3] Implement Hook server approval blocking (hold HTTP response until decision) in packages/daemon/src/hook-server/approval-handler.ts
-- [ ] T060 [US3] Implement always-allow rules storage and matching in packages/daemon/src/approval/always-allow.ts
-- [ ] T061 [US3] Implement approval API routes (decide, list pending, create always-allow rule) in packages/daemon/src/api/approvals.ts
-- [ ] T062 [US3] Emit approval_request and approval_resolved NormalizedEvents through EventBus in packages/daemon/src/approval/queue.ts
-- [ ] T063 [P] [US3] Implement approval card component (risk badge, operation details, approve/deny buttons) in packages/ui/src/components/approval/approval-card.tsx
-- [ ] T064 [P] [US3] Implement approval timeout countdown display in packages/ui/src/components/approval/timeout-indicator.tsx
-- [ ] T065 [US3] Wire up approvals Zustand slice (pending list, decide action) in packages/ui/src/stores/approvals.ts
-- [ ] T066 [US3] Integrate approval cards into chat message stream in packages/ui/src/components/chat/message-list.tsx
+- [x] T057 [US3] Implement approval queue manager (register, decide, timeout) in packages/daemon/src/approval/queue.ts
+- [x] T058 [US3] Implement risk classification engine (tool → risk level mapping) in packages/daemon/src/approval/risk-classifier.ts
+- [x] T059 [US3] Implement Hook server approval blocking (hold HTTP response until decision) in packages/daemon/src/hook-server/approval-handler.ts
+- [x] T060 [US3] Implement always-allow rules storage and matching in packages/daemon/src/approval/always-allow.ts
+- [x] T061 [US3] Implement approval API routes (decide, list pending, create always-allow rule) in packages/daemon/src/api/approvals.ts
+- [x] T062 [US3] Emit approval_request and approval_resolved NormalizedEvents through EventBus in packages/daemon/src/approval/queue.ts
+- [x] T063 [P] [US3] Implement approval card component (risk badge, operation details, approve/deny buttons) in packages/ui/src/components/approval/approval-card.tsx
+- [x] T064 [P] [US3] Implement approval timeout countdown display in packages/ui/src/components/approval/timeout-indicator.tsx
+- [x] T065 [US3] Wire up approvals Zustand slice (pending list, decide action) in packages/ui/src/stores/approvals.ts
+- [x] T066 [US3] Integrate approval cards into chat message stream in packages/ui/src/components/chat/message-list.tsx
 
 **Checkpoint**: Agent risky operations show approval cards, user can approve/deny, timeout works, always-allow rules function
 
@@ -147,25 +147,25 @@
 
 ### Implementation for User Story 4
 
-- [ ] T067 [US4] Implement Orchestrator coordinator (LLM-based task decomposition) in packages/daemon/src/orchestrator/coordinator.ts
-- [ ] T068 [US4] Implement TaskQueue (add, complete, fail, skip, getByStatus) in packages/daemon/src/orchestrator/task-queue.ts
-- [ ] T069 [US4] Implement dependency resolver (two-pass: create tasks → resolve title refs to IDs) in packages/daemon/src/orchestrator/dependency-resolver.ts
-- [ ] T070 [US4] Implement round-based scheduler (find ready → Promise.all → unlock successors) in packages/daemon/src/orchestrator/scheduler.ts
-- [ ] T071 [US4] Implement Semaphore for concurrency control (pool-level + agent-level mutex) in packages/daemon/src/orchestrator/semaphore.ts
-- [ ] T072 [US4] Implement cascade failure (mark transitive dependents as failed) in packages/daemon/src/orchestrator/task-queue.ts
-- [ ] T073 [US4] Implement simple-goal short circuit (< 200 chars, no collaboration keywords → direct route) in packages/daemon/src/orchestrator/router.ts
-- [ ] T074 [US4] Implement result synthesis (Coordinator LLM summarizes completed/failed/skipped tasks) in packages/daemon/src/orchestrator/synthesizer.ts
-- [ ] T075 [US4] Emit OrchestratorEvents through EventBus (decomposition_start, task_start, task_complete, synthesis_complete) in packages/daemon/src/orchestrator/events.ts
-- [ ] T076 [US4] Implement Codex adapter: spawn codex process, JSON-RPC over stdio in packages/daemon/src/providers/codex/adapter.ts
-- [ ] T077 [US4] Implement Codex JSON-RPC protocol (initialize, thread/start, turn/start) in packages/daemon/src/providers/codex/rpc.ts
-- [ ] T078 [US4] Implement Codex event parser (notifications → NormalizedEvent) in packages/daemon/src/providers/codex/parser.ts
-- [ ] T079 [US4] Implement Codex approval handling (hold JSON-RPC response for server-initiated requests) in packages/daemon/src/providers/codex/approval.ts
-- [ ] T080 [P] [US4] Implement group chat creation UI (multi-Agent selector) in packages/ui/src/components/sidebar/group-chat-creator.tsx
-- [ ] T081 [P] [US4] Implement task DAG visualization component (collapsible cards with status, dependency lines) in packages/ui/src/components/orchestrator/task-dag.tsx
-- [ ] T082 [P] [US4] Implement plan approval gate UI (approve/modify/reject execution plan) in packages/ui/src/components/orchestrator/plan-approval.tsx
-- [ ] T083 [US4] Implement task status cards (progress indicator per task: pending/blocked/running/done/failed) in packages/ui/src/components/orchestrator/task-card.tsx
-- [ ] T084 [US4] Wire up orchestrator Zustand slice (tasks, status updates, plan approval) in packages/ui/src/stores/orchestrator.ts
-- [ ] T085 [US4] Integrate orchestrator visualization into group chat message stream in packages/ui/src/pages/chat.tsx
+- [x] T067 [US4] Implement Orchestrator coordinator (LLM-based task decomposition) in packages/daemon/src/orchestrator/coordinator.ts
+- [x] T068 [US4] Implement TaskQueue (add, complete, fail, skip, getByStatus) in packages/daemon/src/orchestrator/task-queue.ts
+- [x] T069 [US4] Implement dependency resolver (two-pass: create tasks → resolve title refs to IDs) in packages/daemon/src/orchestrator/dependency-resolver.ts
+- [x] T070 [US4] Implement round-based scheduler (find ready → Promise.all → unlock successors) in packages/daemon/src/orchestrator/scheduler.ts
+- [x] T071 [US4] Implement Semaphore for concurrency control (pool-level + agent-level mutex) in packages/daemon/src/orchestrator/semaphore.ts
+- [x] T072 [US4] Implement cascade failure (mark transitive dependents as failed) in packages/daemon/src/orchestrator/task-queue.ts
+- [x] T073 [US4] Implement simple-goal short circuit (< 200 chars, no collaboration keywords → direct route) in packages/daemon/src/orchestrator/router.ts
+- [x] T074 [US4] Implement result synthesis (Coordinator LLM summarizes completed/failed/skipped tasks) in packages/daemon/src/orchestrator/synthesizer.ts
+- [x] T075 [US4] Emit OrchestratorEvents through EventBus (decomposition_start, task_start, task_complete, synthesis_complete) in packages/daemon/src/orchestrator/events.ts
+- [x] T076 [US4] Implement Codex adapter: spawn codex process, JSON-RPC over stdio in packages/daemon/src/providers/codex/adapter.ts
+- [x] T077 [US4] Implement Codex JSON-RPC protocol (initialize, thread/start, turn/start) in packages/daemon/src/providers/codex/protocol.ts
+- [x] T078 [US4] Implement Codex event parser (notifications → NormalizedEvent) in packages/daemon/src/providers/codex/parser.ts
+- [x] T079 [US4] Implement Codex approval handling (hold JSON-RPC response for server-initiated requests) in packages/daemon/src/providers/codex/approval.ts
+- [x] T080 [P] [US4] Implement group chat creation UI (multi-Agent selector) in packages/ui/src/components/sidebar/group-chat-creator.tsx
+- [x] T081 [P] [US4] Implement task DAG visualization component (collapsible cards with status, dependency lines) in packages/ui/src/components/orchestrator/task-dag.tsx
+- [x] T082 [P] [US4] Implement plan approval gate UI (approve/modify/reject execution plan) in packages/ui/src/components/orchestrator/plan-approval.tsx
+- [x] T083 [US4] Implement task status cards (progress indicator per task: pending/blocked/running/done/failed) in packages/ui/src/components/orchestrator/task-card.tsx
+- [x] T084 [US4] Wire up orchestrator Zustand slice (tasks, status updates, plan approval) in packages/ui/src/stores/orchestrator.ts
+- [x] T085 [US4] Integrate orchestrator visualization into group chat message stream in packages/ui/src/pages/chat.tsx
 
 **Checkpoint**: Group chat orchestration works end-to-end — decomposition, plan approval, parallel execution, failure cascade, synthesis
 
@@ -179,12 +179,12 @@
 
 ### Implementation for User Story 5
 
-- [ ] T086 [US5] Implement PTY manager (spawn node-pty per session, stream data) in packages/daemon/src/providers/pty-manager.ts
-- [ ] T087 [US5] Add pty_output WebSocket message type and streaming from PTY to WS in packages/daemon/src/ws/pty-stream.ts
-- [ ] T088 [US5] Add pty_input WebSocket handler (forward client input to PTY stdin) in packages/daemon/src/ws/pty-stream.ts
-- [ ] T089 [P] [US5] Implement terminal component wrapper (xterm.js + addon-fit) in packages/ui/src/components/terminal/terminal-view.tsx
-- [ ] T090 [P] [US5] Implement view mode tabs (Chat / Terminal) with scroll position preservation in packages/ui/src/components/chat/view-tabs.tsx
-- [ ] T091 [US5] Wire up PTY data flow in WebSocket handler (pty_output → xterm.write, user input → pty_input) in packages/ui/src/services/ws-handler.ts
+- [x] T086 [US5] Implement PTY manager (spawn node-pty per session, stream data) in packages/daemon/src/providers/pty-manager.ts
+- [x] T087 [US5] Add pty_output WebSocket message type and streaming from PTY to WS in packages/daemon/src/ws/pty-stream.ts
+- [x] T088 [US5] Add pty_input WebSocket handler (forward client input to PTY stdin) in packages/daemon/src/ws/pty-stream.ts
+- [x] T089 [P] [US5] Implement terminal component wrapper (xterm.js + addon-fit) in packages/ui/src/components/terminal/terminal-view.tsx
+- [x] T090 [P] [US5] Implement view mode tabs (Chat / Terminal) with scroll position preservation in packages/ui/src/components/chat/view-tabs.tsx
+- [x] T091 [US5] Wire up PTY data flow in WebSocket handler (pty_output → xterm.write, user input → pty_input) in packages/ui/src/services/ws-handler.ts
 
 **Checkpoint**: User can toggle between Chat and Terminal views, terminal shows full ANSI output, user can type commands
 
@@ -198,10 +198,10 @@
 
 ### Implementation for User Story 6
 
-- [ ] T092 [US6] Implement session discovery poller (scan ~/.claude/sessions/, check PID alive) in packages/daemon/src/discovery/claude-discovery.ts
-- [ ] T093 [US6] Implement external session registration (create conversation entry marked external) in packages/daemon/src/discovery/register.ts
-- [ ] T094 [P] [US6] Implement external session UI indicator (dashed border, "External" badge, disabled input) in packages/ui/src/components/sidebar/external-badge.tsx
-- [ ] T095 [US6] Add sessions API route (list active sessions including external) in packages/daemon/src/api/sessions.ts
+- [x] T092 [US6] Implement session discovery poller (scan ~/.claude/sessions/, check PID alive) in packages/daemon/src/discovery/claude-discovery.ts
+- [x] T093 [US6] Implement external session registration (create conversation entry marked external) in packages/daemon/src/discovery/register.ts
+- [x] T094 [P] [US6] Implement external session UI indicator (dashed border, "External" badge, disabled input) in packages/ui/src/components/sidebar/external-badge.tsx
+- [x] T095 [US6] Add sessions API route (list active sessions including external) in packages/daemon/src/api/sessions.ts
 
 **Checkpoint**: External Claude Code sessions auto-appear in sidebar, user can observe but not control
 
@@ -215,10 +215,10 @@
 
 ### Implementation for User Story 7
 
-- [ ] T096 [US7] Implement custom Agent CRUD API (create, update, delete) in packages/daemon/src/api/agents.ts
-- [ ] T097 [P] [US7] Implement Agent creation form (name, avatar color, system prompt, tools, model) in packages/ui/src/components/agents/agent-form.tsx
-- [ ] T098 [P] [US7] Implement Agent settings/management page in packages/ui/src/pages/agents.tsx
-- [ ] T099 [US7] Integrate custom Agents into Agent picker and session spawning in packages/daemon/src/providers/session-manager.ts
+- [x] T096 [US7] Implement custom Agent CRUD API (create, update, delete) in packages/daemon/src/api/agents.ts
+- [x] T097 [P] [US7] Implement Agent creation form (name, avatar color, system prompt, tools, model) in packages/ui/src/components/agents/agent-form.tsx
+- [x] T098 [P] [US7] Implement Agent settings/management page in packages/ui/src/pages/agents.tsx
+- [x] T099 [US7] Integrate custom Agents into Agent picker and session spawning in packages/daemon/src/providers/session-manager.ts
 
 **Checkpoint**: User can create, edit, delete custom Agents and use them in conversations
 
@@ -232,9 +232,9 @@
 
 ### Implementation for User Story 8
 
-- [ ] T100 [P] [US8] Implement preview card component (iframe sandbox, title, size info) in packages/ui/src/components/preview/preview-card.tsx
-- [ ] T101 [P] [US8] Implement full-screen preview modal with device size toggle (desktop/tablet/mobile) in packages/ui/src/components/preview/fullscreen-preview.tsx
-- [ ] T102 [US8] Detect HTML output in Agent messages and render as preview cards in packages/ui/src/components/chat/message-bubble.tsx
+- [x] T100 [P] [US8] Implement preview card component (iframe sandbox, title, size info) in packages/ui/src/components/preview/preview-card.tsx
+- [x] T101 [P] [US8] Implement full-screen preview modal with device size toggle (desktop/tablet/mobile) in packages/ui/src/components/preview/fullscreen-preview.tsx
+- [x] T102 [US8] Detect HTML output in Agent messages and render as preview cards in packages/ui/src/components/chat/message-bubble.tsx
 
 **Checkpoint**: Agent HTML output shows inline iframe preview, full-screen works with device size switching
 
@@ -244,15 +244,15 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T103 [P] Implement Diff view card component (react-diff-viewer, collapse/expand, file name header) in packages/ui/src/components/code/diff-card.tsx
-- [ ] T104 [P] Implement message hover toolbar (copy, quote, regenerate actions) in packages/ui/src/components/chat/message-toolbar.tsx
-- [ ] T105 [P] Implement message pinning UI and API (pin button, pin indicator, pinned count) in packages/ui/src/components/chat/pin-controls.tsx and packages/daemon/src/api/pins.ts
-- [ ] T106 [P] Implement conflict detection and resolution UI for group chat in packages/ui/src/components/orchestrator/conflict-resolver.tsx
-- [ ] T107 Implement dark/light theme support with Tailwind CSS in packages/ui/src/lib/theme.ts
-- [ ] T108 Add loading skeletons and empty states across all pages in packages/ui/src/components/shared/
-- [ ] T109 Implement error boundaries and friendly error messages in packages/ui/src/components/shared/error-boundary.tsx
-- [ ] T110 Performance: ensure virtual scroll handles 10,000+ messages without jank in packages/ui/src/components/chat/message-list.tsx
-- [ ] T111 Security: validate all API inputs with Zod, sanitize HTML in previews, scope iframe sandbox in packages/daemon/src/api/ and packages/ui/src/components/preview/
+- [x] T103 [P] Implement Diff view card component (react-diff-viewer, collapse/expand, file name header) in packages/ui/src/components/code/diff-card.tsx
+- [x] T104 [P] Implement message hover toolbar (copy, quote, regenerate actions) in packages/ui/src/components/chat/message-toolbar.tsx
+- [x] T105 [P] Implement message pinning UI and API (pin button, pin indicator, pinned count) in packages/ui/src/components/chat/pin-controls.tsx and packages/daemon/src/api/pins.ts
+- [x] T106 [P] Implement conflict detection and resolution UI for group chat in packages/ui/src/components/orchestrator/conflict-resolver.tsx
+- [x] T107 Implement dark/light theme support with Tailwind CSS in packages/ui/src/lib/theme.ts
+- [x] T108 Add loading skeletons and empty states across all pages in packages/ui/src/components/shared/
+- [x] T109 Implement error boundaries and friendly error messages in packages/ui/src/components/shared/error-boundary.tsx
+- [x] T110 Performance: ensure virtual scroll handles 10,000+ messages without jank in packages/ui/src/components/chat/message-list.tsx
+- [x] T111 Security: validate all API inputs with Zod, sanitize HTML in previews, scope iframe sandbox in packages/daemon/src/api/ and packages/ui/src/components/preview/
 
 ---
 
