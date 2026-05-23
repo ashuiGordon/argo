@@ -35,19 +35,23 @@ function discoverSessions(): void {
         const content = readFileSync(filePath, "utf-8");
         const session = JSON.parse(content) as {
           pid?: number;
+          cwd?: string;
           workspace?: string;
           sessionId?: string;
+          kind?: string;
         };
 
-        if (!session.pid || !session.workspace) continue;
+        const workspace = session.cwd || session.workspace;
+        if (!session.pid || !workspace) continue;
         if (knownPids.has(session.pid)) continue;
         if (!isPidAlive(session.pid)) continue;
+        if (session.pid === process.pid) continue;
 
         knownPids.add(session.pid);
         registerExternalSession({
           externalId: session.sessionId || entry.name.replace(".json", ""),
           provider: "claude_code",
-          workspace: session.workspace,
+          workspace,
           pid: session.pid,
         });
       } catch {

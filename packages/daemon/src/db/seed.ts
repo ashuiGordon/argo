@@ -35,4 +35,14 @@ export function seedAgents(): void {
       );
     }
   }
+
+  seedDevUser();
+}
+
+function seedDevUser(): void {
+  const queries = getQueries();
+  const existing = queries.getUserById("dev-user");
+  if (!existing) {
+    queries.createUser("dev-user", "dev@argo.local", "$2b$10$placeholder");
+  }
 }

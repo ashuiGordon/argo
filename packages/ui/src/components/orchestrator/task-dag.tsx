@@ -21,14 +21,22 @@ export function TaskDag({ tasks }: TaskDagProps) {
   const total = tasks.length;
 
   return (
-    <div className="mb-4 rounded-lg border border-zinc-700 bg-zinc-900 p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-white">Task Execution Plan</h3>
-        <span className="text-xs text-zinc-400">
-          {completed}/{total} complete
+    <div className="mx-6 mt-4 animate-fade-in rounded-[var(--radius-md)] border border-white/[0.08] bg-white/[0.02] p-5">
+      <div className="mb-1 flex items-center justify-between">
+        <h3 className="font-display text-[14px] font-500 tracking-[-0.2px] text-white">
+          Task Execution Plan
+        </h3>
+        <span className="text-[11px] font-mono text-[#93939f]">
+          {completed}/{total}
         </span>
       </div>
-      <div className="space-y-2">
+      <div className="mb-3 h-[3px] w-full overflow-hidden rounded-full bg-white/[0.06]">
+        <div
+          className="h-full rounded-full bg-white transition-all duration-500"
+          style={{ width: `${total > 0 ? (completed / total) * 100 : 0}%` }}
+        />
+      </div>
+      <div>
         {tasks.map((task) => (
           <TaskCard
             key={task.id}

@@ -1,4 +1,4 @@
-import { createServer } from "node:http";
+import { createAdaptorServer } from "@hono/node-server";
 import { PORTS } from "@argo/shared";
 import { createApi } from "./api/index.js";
 import { setupWebSocket } from "./ws/index.js";
@@ -13,8 +13,8 @@ async function main() {
 
   const app = createApi();
 
-  const server = createServer(app.fetch as never);
-  setupWebSocket(server);
+  const server = createAdaptorServer({ fetch: app.fetch, port: PORTS.DAEMON });
+  setupWebSocket(server as unknown as import("node:http").Server);
 
   server.listen(PORTS.DAEMON, () => {
     console.log(`Argo daemon listening on http://localhost:${PORTS.DAEMON}`);

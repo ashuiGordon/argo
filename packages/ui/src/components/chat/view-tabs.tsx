@@ -6,13 +6,13 @@ interface ViewTabsProps {
 
 export function ViewTabs({ activeView, onViewChange, hasActiveSession }: ViewTabsProps) {
   return (
-    <div className="flex border-b border-zinc-800 bg-zinc-900">
+    <div className="flex items-center gap-0 border-b border-white/[0.08] bg-[#17171c]">
       <button
         onClick={() => onViewChange("chat")}
-        className={`px-4 py-2 text-sm font-medium transition-colors ${
+        className={`relative px-5 py-3 text-[13px] font-500 transition-colors cursor-pointer ${
           activeView === "chat"
-            ? "border-b-2 border-blue-500 text-white"
-            : "text-zinc-400 hover:text-zinc-200"
+            ? "text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-white"
+            : "text-[#93939f] hover:text-white"
         }`}
       >
         Chat
@@ -20,10 +20,10 @@ export function ViewTabs({ activeView, onViewChange, hasActiveSession }: ViewTab
       <button
         onClick={() => onViewChange("terminal")}
         disabled={!hasActiveSession}
-        className={`px-4 py-2 text-sm font-medium transition-colors ${
+        className={`relative px-5 py-3 text-[13px] font-500 transition-colors cursor-pointer ${
           activeView === "terminal"
-            ? "border-b-2 border-blue-500 text-white"
-            : "text-zinc-400 hover:text-zinc-200"
+            ? "text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-white"
+            : "text-[#93939f] hover:text-white"
         } disabled:cursor-not-allowed disabled:opacity-30`}
       >
         Terminal

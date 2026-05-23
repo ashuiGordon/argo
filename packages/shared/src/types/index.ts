@@ -22,6 +22,7 @@ export interface Conversation {
   mode: "single" | "group";
   pinned: boolean;
   archived: boolean;
+  isExternal?: boolean;
   createdAt: string;
   updatedAt: string;
 }

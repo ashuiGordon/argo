@@ -35,26 +35,28 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
   }
 
   return (
-    <div className="border-t border-zinc-800 px-4 py-3">
-      <div className="flex items-end gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2">
-        <textarea
-          ref={textareaRef}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onInput={handleInput}
-          placeholder="Type a message..."
-          disabled={disabled}
-          rows={1}
-          className="max-h-[200px] flex-1 resize-none bg-transparent text-sm text-white placeholder-zinc-500 focus:outline-none"
-        />
-        <button
-          onClick={handleSubmit}
-          disabled={disabled || !value.trim()}
-          className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-        >
-          Send
-        </button>
+    <div className="border-t border-white/[0.08] px-6 py-4">
+      <div className="mx-auto max-w-3xl">
+        <div className="flex items-end gap-3 rounded-[var(--radius-md)] border border-white/[0.1] bg-white/[0.03] px-4 py-3 transition-colors focus-within:border-white/[0.2]">
+          <textarea
+            ref={textareaRef}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onInput={handleInput}
+            placeholder="Type a message…"
+            disabled={disabled}
+            rows={1}
+            className="max-h-[200px] flex-1 resize-none bg-transparent text-[14px] text-white placeholder-[#75758a] focus:outline-none"
+          />
+          <button
+            onClick={handleSubmit}
+            disabled={disabled || !value.trim()}
+            className="rounded-[var(--radius-pill)] bg-white px-4 py-1.5 text-[12px] font-500 text-[#17171c] transition-opacity hover:opacity-90 disabled:opacity-30 cursor-pointer"
+          >
+            Send
+          </button>
+        </div>
       </div>
     </div>
   );

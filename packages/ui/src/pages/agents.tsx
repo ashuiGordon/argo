@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AgentForm } from "../components/agents/agent-form";
 import { api } from "../services/api-client";
 
@@ -15,6 +16,7 @@ export function AgentsPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadAgents();
@@ -44,21 +46,31 @@ export function AgentsPage() {
   }
 
   return (
-    <div className="flex h-screen bg-zinc-950">
-      <div className="mx-auto w-full max-w-2xl p-8">
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-white">Agents</h1>
+    <div className="flex h-screen bg-[#17171c]">
+      <div className="mx-auto w-full max-w-2xl px-8 py-10">
+        <div className="mb-8 flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <button
+              onClick={() => navigate("/")}
+              className="text-[13px] text-[#93939f] underline transition-colors hover:text-white cursor-pointer"
+            >
+              ← Back
+            </button>
+            <h1 className="font-display text-[24px] font-400 tracking-[-0.32px] text-white">
+              Agents
+            </h1>
+          </div>
           <button
             onClick={() => setShowForm(true)}
-            className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="rounded-[var(--radius-pill)] bg-white px-4 py-2 text-[13px] font-500 text-[#17171c] transition-opacity hover:opacity-90 cursor-pointer"
           >
             Create Agent
           </button>
         </div>
 
         {(showForm || editingAgent) && (
-          <div className="mb-6 rounded-lg border border-zinc-700 bg-zinc-900 p-6">
-            <h2 className="mb-4 text-lg font-semibold text-white">
+          <div className="mb-8 rounded-[var(--radius-md)] border border-white/[0.1] bg-white/[0.03] p-6 animate-slide-up">
+            <h2 className="mb-4 font-display text-[18px] font-500 tracking-[-0.2px] text-white">
               {editingAgent ? "Edit Agent" : "New Agent"}
             </h2>
             <AgentForm
@@ -70,30 +82,35 @@ export function AgentsPage() {
           </div>
         )}
 
-        <div className="space-y-3">
-          {agents.map((agent) => (
-            <div key={agent.id} className="flex items-center gap-3 rounded-lg border border-zinc-700 bg-zinc-900 p-4">
+        <div className="space-y-0 rounded-[var(--radius-md)] border border-white/[0.08] overflow-hidden">
+          {agents.map((agent, i) => (
+            <div
+              key={agent.id}
+              className={`flex items-center gap-4 px-5 py-4 transition-colors hover:bg-white/[0.03] ${
+                i < agents.length - 1 ? "border-b border-white/[0.06]" : ""
+              }`}
+            >
               <div
-                className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[12px] font-600 text-white"
                 style={{ backgroundColor: agent.avatarColor }}
               >
                 {agent.name[0]}
               </div>
               <div className="flex-1">
-                <div className="text-sm font-medium text-white">{agent.name}</div>
-                <div className="text-xs text-zinc-500">{agent.type}</div>
+                <div className="text-[14px] font-500 text-white">{agent.name}</div>
+                <div className="text-[11px] font-mono uppercase tracking-[0.2px] text-[#75758a]">{agent.type}</div>
               </div>
               {agent.type === "custom" && (
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <button
                     onClick={() => setEditingAgent(agent)}
-                    className="rounded px-3 py-1 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                    className="text-[12px] text-[#93939f] underline transition-colors hover:text-white cursor-pointer"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(agent.id)}
-                    className="rounded px-3 py-1 text-xs text-red-400 hover:bg-red-950 hover:text-red-300"
+                    className="text-[12px] text-[#93939f] underline transition-colors hover:text-red-400 cursor-pointer"
                   >
                     Delete
                   </button>

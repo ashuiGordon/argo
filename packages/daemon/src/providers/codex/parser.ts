@@ -1,57 +1,54 @@
 import type { NormalizedEvent } from "@argo/shared";
 
+interface CodexEvent {
+  type: string;
+  thread_id?: string;
+  item?: {
+    id: string;
+    type: string;
+    text?: string;
+    command?: string;
+    aggregated_output?: string;
+    exit_code?: number | null;
+    status?: string;
+  };
+  usage?: {
+    input_tokens: number;
+    output_tokens: number;
+  };
+}
+
 export function parseCodexMessage(sessionId: string, line: string): NormalizedEvent | null {
   try {
-    const data = JSON.parse(line);
+    const data: CodexEvent = JSON.parse(line);
 
-    if (data.type === "message" || data.type === "response") {
+    if (data.type === "item.completed" && data.item?.type === "agent_message") {
       return {
         type: "message",
         sessionId,
         role: "assistant",
-        content: data.content || data.message || data.text || "",
-        streaming: !!data.streaming,
-        final: data.final !== false,
+        content: data.item.text || "",
+        streaming: false,
+        final: true,
       };
     }
 
-    if (data.type === "tool_call" || data.type === "function_call") {
+    if (data.type === "item.started" && data.item?.type === "command_execution") {
       return {
         type: "tool_use",
         sessionId,
-        tool: data.name || data.tool || "unknown",
-        input: data.arguments || data.input || {},
+        tool: "shell",
+        input: { command: data.item.command || "" },
       };
     }
 
-    if (data.type === "tool_output" || data.type === "function_output") {
+    if (data.type === "item.completed" && data.item?.type === "command_execution") {
       return {
         type: "tool_result",
         sessionId,
-        tool: data.name || data.tool || "unknown",
-        output: data.output || "",
-        success: data.success !== false,
-      };
-    }
-
-    if (data.type === "error") {
-      return {
-        type: "error",
-        sessionId,
-        message: data.message || "Unknown Codex error",
-        code: data.code || "CODEX_ERROR",
-        recoverable: true,
-      };
-    }
-
-    if (data.content && typeof data.content === "string") {
-      return {
-        type: "message",
-        sessionId,
-        role: "assistant",
-        content: data.content,
-        streaming: false,
-        final: true,
+        tool: "shell",
+        output: data.item.aggregated_output || "",
+        success: data.item.exit_code === 0,
       };
     }
 

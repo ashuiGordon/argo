@@ -1,5 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
-import { useVirtualizer } from "@tanstack/react-virtual";
+import { useEffect, useRef } from "react";
 import type { NormalizedEvent } from "@argo/shared";
 import { MessageBubble } from "./message-bubble";
 import { ToolUseCard } from "./tool-use-card";
@@ -12,100 +11,65 @@ interface MessageListProps {
 }
 
 export function MessageList({ events, isStreaming }: MessageListProps) {
-  const parentRef = useRef<HTMLDivElement>(null);
-  const prevLengthRef = useRef(0);
-
-  const virtualizer = useVirtualizer({
-    count: events.length + (isStreaming ? 1 : 0),
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 80,
-    overscan: 10,
-  });
-
-  const scrollToBottom = useCallback(() => {
-    if (parentRef.current) {
-      parentRef.current.scrollTop = parentRef.current.scrollHeight;
-    }
-  }, []);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (events.length > prevLengthRef.current) {
-      scrollToBottom();
-    }
-    prevLengthRef.current = events.length;
-  }, [events.length, isStreaming, scrollToBottom]);
-
-  function renderItem(index: number) {
-    if (index >= events.length) {
-      return <StreamingIndicator />;
-    }
-
-    const event = events[index];
-    switch (event.payload.type) {
-      case "message":
-        return <MessageBubble event={event.payload} />;
-      case "tool_use":
-        return <ToolUseCard event={event.payload} />;
-      case "tool_result":
-        return (
-          <div className="mb-3 ml-4 rounded border border-zinc-700 bg-zinc-800/50 px-3 py-2 text-xs text-zinc-300">
-            <span className="font-medium text-zinc-400">{event.payload.tool}:</span>{" "}
-            {event.payload.output.slice(0, 200)}
-            {event.payload.output.length > 200 && "..."}
-          </div>
-        );
-      case "approval_request":
-        return (
-          <ApprovalCard
-            approvalId={event.payload.approvalId}
-            toolName={event.payload.toolName}
-            riskLevel={event.payload.riskLevel}
-            action={event.payload.action}
-            proposedAction={event.payload.proposedAction}
-          />
-        );
-      case "approval_resolved":
-        return (
-          <div className="mb-3 flex justify-center">
-            <span className={`rounded-full px-3 py-1 text-xs ${
-              event.payload.decision === "approve"
-                ? "bg-green-900/50 text-green-300"
-                : "bg-red-900/50 text-red-300"
-            }`}>
-              {event.payload.decision === "approve" ? "✓ Approved" : "✗ Denied"} ({event.payload.decidedBy})
-            </span>
-          </div>
-        );
-      default:
-        return null;
-    }
-  }
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [events.length, isStreaming]);
 
   return (
-    <div ref={parentRef} className="flex-1 overflow-y-auto px-4 py-4">
-      <div
-        style={{
-          height: `${virtualizer.getTotalSize()}px`,
-          width: "100%",
-          position: "relative",
-        }}
-      >
-        {virtualizer.getVirtualItems().map((virtualItem) => (
-          <div
-            key={virtualItem.key}
-            data-index={virtualItem.index}
-            ref={virtualizer.measureElement}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              transform: `translateY(${virtualItem.start}px)`,
-            }}
-          >
-            {renderItem(virtualItem.index)}
-          </div>
-        ))}
+    <div className="flex-1 overflow-y-auto px-6 py-6">
+      <div className="mx-auto max-w-3xl">
+        {events.map((event) => {
+          switch (event.payload.type) {
+            case "message":
+              return <MessageBubble key={event.sequence} event={event.payload} />;
+            case "tool_use":
+              return <ToolUseCard key={event.sequence} event={event.payload} />;
+            case "tool_result":
+              return (
+                <div key={event.sequence} className="mb-3 ml-6 animate-fade-in rounded-[var(--radius-sm)] border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-[12px] text-[#93939f]">
+                  <span className="font-mono text-[#75758a]">{event.payload.tool}</span>
+                  <span className="mx-1.5 text-white/20">→</span>
+                  {event.payload.output.slice(0, 200)}
+                  {event.payload.output.length > 200 && "…"}
+                </div>
+              );
+            case "approval_request":
+              return (
+                <ApprovalCard
+                  key={event.sequence}
+                  approvalId={event.payload.approvalId}
+                  toolName={event.payload.toolName}
+                  riskLevel={event.payload.riskLevel}
+                  action={event.payload.action}
+                  proposedAction={event.payload.proposedAction}
+                />
+              );
+            case "approval_resolved":
+              return (
+                <div key={event.sequence} className="mb-4 flex justify-center animate-fade-in">
+                  <span className={`rounded-[var(--radius-pill)] px-3 py-1 text-[11px] font-mono uppercase tracking-[0.2px] ${
+                    event.payload.decision === "approve"
+                      ? "bg-[#003c33]/20 text-[#4ade80] border border-[#003c33]/40"
+                      : "bg-red-950/20 text-red-400 border border-red-900/30"
+                  }`}>
+                    {event.payload.decision === "approve" ? "Approved" : "Denied"} — {event.payload.decidedBy}
+                  </span>
+                </div>
+              );
+            case "error":
+              return (
+                <div key={event.sequence} className="mb-3 animate-fade-in rounded-[var(--radius-sm)] border border-red-900/30 bg-red-950/10 px-4 py-2.5 text-[12px] text-red-400">
+                  {event.payload.message}
+                </div>
+              );
+            default:
+              return null;
+          }
+        })}
+        {isStreaming && <StreamingIndicator />}
+        <div ref={bottomRef} />
       </div>
     </div>
   );

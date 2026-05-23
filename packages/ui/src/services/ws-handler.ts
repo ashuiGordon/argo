@@ -19,11 +19,14 @@ export function initWsHandler() {
 
         if (payload.type === "task_status") {
           const orchStore = useOrchestratorStore.getState();
+          const taskPayload = payload as { taskId: string; status: TaskStatus; error?: string; title?: string; assignee?: string };
           orchStore.updateTask(
             activeId,
-            payload.taskId,
-            payload.status as TaskStatus,
-            (payload as { error?: string }).error,
+            taskPayload.taskId,
+            taskPayload.status as TaskStatus,
+            taskPayload.error,
+            taskPayload.title,
+            taskPayload.assignee,
           );
         }
       }

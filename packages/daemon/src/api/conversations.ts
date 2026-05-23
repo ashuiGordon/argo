@@ -22,12 +22,14 @@ conversationRoutes.get("/", (c) => {
       const payload = JSON.parse(lastEvent.payload);
       lastMessage = { content: payload.content, timestamp: lastEvent.timestamp };
     }
+    const isExternal = conv.title.startsWith("External:");
     return {
       id: conv.id,
       title: conv.title,
       mode: conv.mode,
       pinned: !!conv.pinned,
       archived: !!conv.archived,
+      isExternal,
       agents: agents.map((a) => ({ id: a.id, name: a.name, avatarColor: a.avatar_color })),
       lastMessage,
       unreadCount: queries.getUnreadCount(userId, conv.id),

@@ -17,14 +17,19 @@ export function createPtySession(
   conversationId: string,
   cwd: string,
 ): PtySession {
-  const shell = platform() === "win32" ? "powershell.exe" : process.env.SHELL || "/bin/bash";
+  const shell = platform() === "win32" ? "powershell.exe" : "/bin/zsh";
+
+  const cleanEnv: Record<string, string> = {};
+  for (const [key, val] of Object.entries(process.env)) {
+    if (val !== undefined) cleanEnv[key] = val;
+  }
 
   const ptyProcess = pty.spawn(shell, [], {
     name: "xterm-256color",
     cols: 120,
     rows: 30,
     cwd,
-    env: process.env as Record<string, string>,
+    env: cleanEnv,
   });
 
   const session: PtySession = {

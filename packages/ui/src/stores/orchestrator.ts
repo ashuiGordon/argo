@@ -12,7 +12,7 @@ interface OrchestratorTask {
 
 interface OrchestratorState {
   tasks: Map<string, OrchestratorTask[]>;
-  updateTask: (conversationId: string, taskId: string, status: TaskStatus, error?: string) => void;
+  updateTask: (conversationId: string, taskId: string, status: TaskStatus, error?: string, title?: string, assignee?: string) => void;
   setTasks: (conversationId: string, tasks: OrchestratorTask[]) => void;
 }
 
@@ -25,14 +25,16 @@ export const useOrchestratorStore = create<OrchestratorState>((set, get) => ({
     set({ tasks: map });
   },
 
-  updateTask: (conversationId, taskId, status, error) => {
+  updateTask: (conversationId, taskId, status, error, title?: string, assignee?: string) => {
     const map = new Map(get().tasks);
     const tasks = [...(map.get(conversationId) || [])];
     const idx = tasks.findIndex((t) => t.id === taskId);
     if (idx >= 0) {
       tasks[idx] = { ...tasks[idx], status, error };
-      map.set(conversationId, tasks);
-      set({ tasks: map });
+    } else {
+      tasks.push({ id: taskId, title: title || taskId, assignee: assignee || "", status, dependsOn: [], error });
     }
+    map.set(conversationId, tasks);
+    set({ tasks: map });
   },
 }));

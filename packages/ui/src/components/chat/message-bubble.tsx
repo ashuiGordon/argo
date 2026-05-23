@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { NormalizedEvent } from "@argo/shared";
 import { PreviewCard } from "../preview/preview-card";
 import { FullscreenPreview } from "../preview/fullscreen-preview";
@@ -18,6 +20,33 @@ function extractHtml(content: string): string | null {
   return null;
 }
 
+function CodeBlock({ children, className }: { children?: React.ReactNode; className?: string }) {
+  const [copied, setCopied] = useState(false);
+  const text = String(children).replace(/\n$/, "");
+  const lang = className?.replace("language-", "") || "";
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [text]);
+
+  return (
+    <div className="group/code relative">
+      <div className="flex items-center justify-between border-b border-white/[0.06] bg-[#0f0f13] px-3 py-1.5 rounded-t-[var(--radius-sm)]">
+        <span className="font-mono text-[10px] uppercase tracking-[0.28px] text-[#75758a]">{lang || "code"}</span>
+        <button
+          onClick={handleCopy}
+          className="text-[10px] text-[#75758a] opacity-0 transition-opacity hover:text-white group-hover/code:opacity-100 cursor-pointer"
+        >
+          {copied ? "Copied" : "Copy"}
+        </button>
+      </div>
+      <code className={className}>{children}</code>
+    </div>
+  );
+}
+
 export function MessageBubble({ event }: MessageBubbleProps) {
   const [showFullscreen, setShowFullscreen] = useState(false);
 
@@ -27,17 +56,39 @@ export function MessageBubble({ event }: MessageBubbleProps) {
   const html = !isUser ? extractHtml(event.content) : null;
 
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-3`}>
+    <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4 animate-fade-in`}>
       <div
-        className={`max-w-[80%] rounded-lg px-4 py-2.5 ${
+        className={`max-w-[75%] rounded-[var(--radius-lg)] px-4 py-3 ${
           isUser
-            ? "bg-blue-600 text-white"
-            : "bg-zinc-800 text-zinc-100"
+            ? "bg-white text-[#17171c]"
+            : "bg-white/[0.05] border border-white/[0.08] text-white"
         }`}
       >
-        <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-          {event.content}
-        </div>
+        {isUser ? (
+          <div className="whitespace-pre-wrap break-words text-[14px] leading-[1.5]">
+            {event.content}
+          </div>
+        ) : (
+          <div className="prose prose-sm prose-invert max-w-none break-words text-[14px] leading-[1.5] prose-p:my-1.5 prose-pre:my-2.5 prose-pre:rounded-[var(--radius-sm)] prose-pre:bg-[#0f0f13] prose-pre:p-0 prose-pre:overflow-hidden prose-code:text-[#ff7759] prose-code:font-mono prose-headings:text-white prose-headings:font-display prose-headings:tracking-tight prose-a:text-[#1863dc] prose-a:no-underline hover:prose-a:underline prose-strong:text-white">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                pre({ children }) {
+                  return <pre className="relative">{children}</pre>;
+                },
+                code({ children, className }) {
+                  const isBlock = className?.startsWith("language-") || false;
+                  if (isBlock) {
+                    return <CodeBlock className={className}>{children}</CodeBlock>;
+                  }
+                  return <code className={`${className || ""} rounded-[3px] bg-white/[0.08] px-1.5 py-0.5 text-[13px]`}>{children}</code>;
+                },
+              }}
+            >
+              {event.content}
+            </ReactMarkdown>
+          </div>
+        )}
         {html && (
           <>
             <PreviewCard

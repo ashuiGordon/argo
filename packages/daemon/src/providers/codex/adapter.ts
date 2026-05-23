@@ -22,10 +22,19 @@ export function spawnCodex(
   const persistence = new EventPersistence(getQueries());
   const queries = getQueries();
 
-  const proc = spawn("codex", ["--quiet", prompt], {
+  const proc = spawn("codex", [
+    "exec",
+    "--json",
+    "--ephemeral",
+    "--dangerously-bypass-approvals-and-sandbox",
+    "-C", workspace,
+    prompt,
+  ], {
     cwd: workspace,
     stdio: ["pipe", "pipe", "pipe"],
   });
+
+  proc.stdin?.end();
 
   queries.createSession(sessionId, "codex", conversationId, workspace, proc.pid);
   queries.updateSessionStatus(sessionId, "running");
@@ -57,7 +66,7 @@ export function spawnCodex(
 
   proc.stderr?.on("data", (chunk: Buffer) => {
     const text = chunk.toString().trim();
-    if (text) {
+    if (text && !text.includes("Reading additional input from stdin")) {
       persistence.persist(
         { type: "error", sessionId, message: text, code: "STDERR", recoverable: true },
         conversationId,

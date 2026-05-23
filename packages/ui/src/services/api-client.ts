@@ -85,4 +85,10 @@ export const api = {
       request(`/approvals/${id}/decide`, { method: "POST", body: JSON.stringify({ decision }) }),
     pending: () => request<{ approvals: unknown[] }>("/approvals/pending"),
   },
+  sessions: {
+    createPty: (conversationId: string) =>
+      request<{ sessionId: string }>(`/sessions/pty?conversationId=${conversationId}`, { method: "POST" }),
+    destroyPty: (sessionId: string) =>
+      request(`/sessions/pty/${sessionId}`, { method: "DELETE" }),
+  },
 };

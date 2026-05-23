@@ -8,31 +8,29 @@ interface TaskCardProps {
   error?: string;
 }
 
-const statusConfig: Record<TaskStatus, { label: string; color: string }> = {
-  pending: { label: "Pending", color: "text-zinc-400" },
-  blocked: { label: "Blocked", color: "text-red-400" },
-  in_progress: { label: "Running", color: "text-blue-400" },
-  completed: { label: "Done", color: "text-green-400" },
-  failed: { label: "Failed", color: "text-red-400" },
-  skipped: { label: "Skipped", color: "text-zinc-500" },
+const statusConfig: Record<TaskStatus, { label: string; color: string; dot: string }> = {
+  pending: { label: "Pending", color: "text-[#93939f]", dot: "bg-[#93939f]" },
+  blocked: { label: "Blocked", color: "text-red-400", dot: "bg-red-400" },
+  in_progress: { label: "Running", color: "text-[#1863dc]", dot: "bg-[#1863dc] animate-pulse" },
+  completed: { label: "Done", color: "text-[#4ade80]", dot: "bg-[#4ade80]" },
+  failed: { label: "Failed", color: "text-red-400", dot: "bg-red-400" },
+  skipped: { label: "Skipped", color: "text-[#75758a]", dot: "bg-[#75758a]" },
 };
 
 export function TaskCard({ title, assignee, status, error }: TaskCardProps) {
   const config = statusConfig[status];
 
   return (
-    <div className="rounded border border-zinc-700 bg-zinc-800/50 p-3">
+    <div className="border-b border-white/[0.06] py-3 last:border-0">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-white">{title}</span>
-        <span className={`text-xs font-medium ${config.color}`}>{config.label}</span>
+        <span className="text-[13px] font-500 text-white">{title}</span>
+        <span className={`flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-[0.2px] ${config.color}`}>
+          <span className={`inline-block h-1.5 w-1.5 rounded-full ${config.dot}`} />
+          {config.label}
+        </span>
       </div>
-      <div className="mt-1 text-xs text-zinc-500">Assigned to: {assignee}</div>
-      {error && <div className="mt-1 text-xs text-red-400">{error}</div>}
-      {status === "in_progress" && (
-        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-zinc-700">
-          <div className="h-full w-1/2 animate-pulse rounded-full bg-blue-500" />
-        </div>
-      )}
+      <div className="mt-0.5 text-[11px] text-[#75758a]">{assignee}</div>
+      {error && <div className="mt-1 text-[11px] text-red-400">{error}</div>}
     </div>
   );
 }

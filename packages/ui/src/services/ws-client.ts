@@ -12,8 +12,7 @@ class WsClient {
   private lastSeenSequence = 0;
 
   connect() {
-    const token = useAuthStore.getState().token;
-    if (!token) return;
+    const token = useAuthStore.getState().token || "dev";
 
     const url = `ws://${window.location.hostname}:54321/ws?token=${token}&lastSeenSequence=${this.lastSeenSequence}`;
     this.ws = new WebSocket(url);

@@ -3,6 +3,7 @@ import { api } from "../../services/api-client";
 import { useConversationsStore } from "../../stores/conversations";
 import { ConversationItem } from "./conversation-item";
 import { AgentPicker } from "./agent-picker";
+import { GroupChatCreator } from "./group-chat-creator";
 import { SearchBar } from "./search-bar";
 import { ConversationMenu } from "./conversation-menu";
 import type { ConversationWithDetails } from "@argo/shared";
@@ -11,7 +12,9 @@ export function ConversationList() {
   const { conversations, setConversations, activeConversationId, setActiveConversation } =
     useConversationsStore();
   const [showAgentPicker, setShowAgentPicker] = useState(false);
+  const [showGroupCreator, setShowGroupCreator] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showExternal, setShowExternal] = useState(false);
   const [contextMenu, setContextMenu] = useState<{
     id: string;
     pinned: boolean;
@@ -40,6 +43,13 @@ export function ConversationList() {
     setActiveConversation(res.id);
   }
 
+  async function handleCreateGroupChat(agentIds: string[]) {
+    setShowGroupCreator(false);
+    const res = await api.conversations.create("group", agentIds);
+    await loadConversations(searchTerm);
+    setActiveConversation(res.id);
+  }
+
   function handleContextMenu(e: React.MouseEvent, conv: ConversationWithDetails) {
     e.preventDefault();
     setContextMenu({
@@ -50,20 +60,39 @@ export function ConversationList() {
     });
   }
 
+  const userConversations = conversations.filter((c) => !c.isExternal);
+  const externalConversations = conversations.filter((c) => c.isExternal);
+
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
-        <h2 className="text-sm font-semibold text-zinc-300">Conversations</h2>
-        <button
-          onClick={() => setShowAgentPicker(true)}
-          className="rounded-md bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700"
-        >
-          + New
-        </button>
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-4">
+        <h2 className="font-display text-[15px] font-500 tracking-[-0.2px] text-white">
+          Conversations
+        </h2>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowGroupCreator(true)}
+            className="rounded-[var(--radius-pill)] border border-white/[0.15] px-3 py-1 text-[12px] font-500 text-[#93939f] transition-colors hover:border-white/[0.3] hover:text-white cursor-pointer"
+          >
+            Group
+          </button>
+          <button
+            onClick={() => setShowAgentPicker(true)}
+            className="rounded-[var(--radius-pill)] bg-white px-3 py-1 text-[12px] font-500 text-[#17171c] transition-opacity hover:opacity-90 cursor-pointer"
+          >
+            + New
+          </button>
+        </div>
       </div>
-      <SearchBar onSearch={handleSearch} />
-      <div className="flex-1 overflow-y-auto p-2">
-        {conversations.map((conv) => (
+
+      <div className="px-4 pb-2">
+        <SearchBar onSearch={handleSearch} />
+      </div>
+
+      {/* Conversation list */}
+      <div className="flex-1 overflow-y-auto px-2">
+        {userConversations.map((conv) => (
           <div key={conv.id} onContextMenu={(e) => handleContextMenu(e, conv)}>
             <ConversationItem
               id={conv.id}
@@ -78,14 +107,46 @@ export function ConversationList() {
             />
           </div>
         ))}
+
+        {externalConversations.length > 0 && (
+          <>
+            <button
+              onClick={() => setShowExternal(!showExternal)}
+              className="mt-4 flex w-full items-center gap-2 px-3 py-2 text-[12px] font-mono uppercase tracking-[0.28px] text-[#93939f] hover:text-white transition-colors cursor-pointer"
+            >
+              <span className={`inline-block transition-transform ${showExternal ? "rotate-90" : ""}`}>▸</span>
+              External Sessions ({externalConversations.length})
+            </button>
+            {showExternal && externalConversations.map((conv) => (
+              <div key={conv.id} onContextMenu={(e) => handleContextMenu(e, conv)}>
+                <ConversationItem
+                  id={conv.id}
+                  title={conv.title}
+                  updatedAt={conv.updatedAt}
+                  pinned={conv.pinned}
+                  unreadCount={conv.unreadCount}
+                  active={conv.id === activeConversationId}
+                  isExternal
+                  agents={conv.agents}
+                  onClick={() => setActiveConversation(conv.id)}
+                />
+              </div>
+            ))}
+          </>
+        )}
+
         {conversations.length === 0 && (
-          <p className="px-3 py-6 text-center text-sm text-zinc-500">
-            No conversations found.
+          <p className="px-3 py-8 text-center text-[13px] text-[#93939f]">
+            No conversations yet
           </p>
         )}
       </div>
+
       {showAgentPicker && (
         <AgentPicker onSelect={handleCreateConversation} onClose={() => setShowAgentPicker(false)} />
+      )}
+      {showGroupCreator && (
+        <GroupChatCreator onCreate={handleCreateGroupChat} onClose={() => setShowGroupCreator(false)} />
       )}
       {contextMenu && (
         <ConversationMenu

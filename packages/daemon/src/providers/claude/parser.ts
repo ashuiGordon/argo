@@ -74,11 +74,63 @@ export function parseHookEvent(sessionId: string, raw: unknown): NormalizedEvent
   }
 }
 
+/**
+ * Parse Claude Code stream-json format into NormalizedEvents.
+ * Claude outputs: {type:"system"}, {type:"assistant", message:{content:[...]}}, {type:"result"}
+ */
 export function parseStreamJsonLine(sessionId: string, line: string): NormalizedEvent | null {
   try {
     const data = JSON.parse(line);
-    return parseHookEvent(sessionId, data);
+    return parseStreamJsonEvent(sessionId, data);
   } catch {
     return null;
+  }
+}
+
+function parseStreamJsonEvent(sessionId: string, data: Record<string, unknown>): NormalizedEvent | null {
+  const type = data.type as string;
+
+  switch (type) {
+    case "assistant": {
+      const msg = data.message as Record<string, unknown> | undefined;
+      if (!msg) return null;
+      const content = msg.content as Array<Record<string, unknown>> | undefined;
+      if (!content || content.length === 0) return null;
+
+      for (const block of content) {
+        if (block.type === "tool_use") {
+          return {
+            type: "tool_use",
+            sessionId,
+            tool: (block.name as string) || "unknown",
+            input: (block.input as Record<string, unknown>) || {},
+          };
+        }
+      }
+
+      // Text messages come via the "result" event to avoid duplicates
+      return null;
+    }
+
+    case "result": {
+      const result = data.result as string | undefined;
+      if (result) {
+        return {
+          type: "message",
+          sessionId,
+          role: "assistant",
+          content: result,
+          streaming: false,
+          final: true,
+        };
+      }
+      return null;
+    }
+
+    case "system":
+      return null;
+
+    default:
+      return parseHookEvent(sessionId, data);
   }
 }

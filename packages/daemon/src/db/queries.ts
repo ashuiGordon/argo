@@ -105,7 +105,7 @@ export class Queries {
     let query = `SELECT c.*, GROUP_CONCAT(ca.agent_id) as agent_ids
                  FROM conversations c
                  LEFT JOIN conversation_agents ca ON ca.conversation_id = c.id
-                 WHERE c.user_id = ?`;
+                 WHERE (c.user_id = ? OR EXISTS (SELECT 1 FROM sessions s WHERE s.conversation_id = c.id AND s.is_external = 1))`;
     const params: unknown[] = [userId];
 
     if (search) {
@@ -130,7 +130,7 @@ export class Queries {
   }
 
   getConversationCount(userId: string, search?: string): number {
-    let query = "SELECT COUNT(*) as count FROM conversations WHERE user_id = ?";
+    let query = "SELECT COUNT(*) as count FROM conversations WHERE (user_id = ? OR EXISTS (SELECT 1 FROM sessions s WHERE s.conversation_id = conversations.id AND s.is_external = 1))";
     const params: unknown[] = [userId];
     if (search) {
       query += " AND title LIKE ?";
