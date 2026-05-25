@@ -28,9 +28,9 @@ export function MessageList({ events, isStreaming }: MessageListProps) {
               return <ToolUseCard key={event.sequence} event={event.payload} />;
             case "tool_result":
               return (
-                <div key={event.sequence} className="mb-3 ml-6 animate-fade-in rounded-[var(--radius-sm)] border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-[12px] text-[#93939f]">
-                  <span className="font-mono text-[#75758a]">{event.payload.tool}</span>
-                  <span className="mx-1.5 text-white/20">→</span>
+                <div key={event.sequence} className="mb-3 ml-6 animate-fade-in rounded-[var(--radius-sm)] border border-gray-200 bg-gray-50 px-3 py-2 text-[12px] text-gray-600">
+                  <span className="font-mono text-gray-500">{event.payload.tool}</span>
+                  <span className="mx-1.5 text-gray-300">→</span>
                   {event.payload.output.slice(0, 200)}
                   {event.payload.output.length > 200 && "…"}
                 </div>
@@ -51,8 +51,8 @@ export function MessageList({ events, isStreaming }: MessageListProps) {
                 <div key={event.sequence} className="mb-4 flex justify-center animate-fade-in">
                   <span className={`rounded-[var(--radius-pill)] px-3 py-1 text-[11px] font-mono uppercase tracking-[0.2px] ${
                     event.payload.decision === "approve"
-                      ? "bg-[#003c33]/20 text-[#4ade80] border border-[#003c33]/40"
-                      : "bg-red-950/20 text-red-400 border border-red-900/30"
+                      ? "bg-green-50 text-green-700 border border-green-200"
+                      : "bg-red-50 text-red-700 border border-red-200"
                   }`}>
                     {event.payload.decision === "approve" ? "Approved" : "Denied"} — {event.payload.decidedBy}
                   </span>
@@ -60,7 +60,7 @@ export function MessageList({ events, isStreaming }: MessageListProps) {
               );
             case "error":
               return (
-                <div key={event.sequence} className="mb-3 animate-fade-in rounded-[var(--radius-sm)] border border-red-900/30 bg-red-950/10 px-4 py-2.5 text-[12px] text-red-400">
+                <div key={event.sequence} className="mb-3 animate-fade-in rounded-[var(--radius-sm)] border border-red-200 bg-red-50 px-4 py-2.5 text-[12px] text-red-700">
                   {event.payload.message}
                 </div>
               );

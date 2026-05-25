@@ -12,17 +12,17 @@ export function PreviewCard({ html, title, onFullscreen }: PreviewCardProps) {
   const blobUrl = URL.createObjectURL(blob);
 
   return (
-    <div className="my-2 overflow-hidden rounded-lg border border-zinc-700 bg-zinc-900">
-      <div className="flex items-center justify-between border-b border-zinc-700 px-3 py-2">
-        <span className="text-xs font-medium text-zinc-400">{title || "Preview"}</span>
+    <div className="my-2 overflow-hidden rounded-[var(--radius-sm)] border border-gray-200 bg-white">
+      <div className="flex items-center justify-between border-b border-gray-200 px-3 py-2">
+        <span className="text-xs font-medium text-gray-600">{title || "Preview"}</span>
         <div className="flex gap-2">
-          <span className="text-[10px] text-zinc-500">
+          <span className="text-[10px] text-gray-400">
             {loaded ? "Loaded" : "Loading..."}
           </span>
           {onFullscreen && (
             <button
               onClick={onFullscreen}
-              className="text-xs text-blue-400 hover:text-blue-300"
+              className="text-xs text-blue-600 hover:text-blue-700 cursor-pointer"
             >
               Fullscreen
             </button>

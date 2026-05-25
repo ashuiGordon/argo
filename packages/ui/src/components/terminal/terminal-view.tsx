@@ -18,10 +18,10 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
 
     const term = new Terminal({
       theme: {
-        background: "#09090b",
-        foreground: "#e4e4e7",
-        cursor: "#e4e4e7",
-        selectionBackground: "#3f3f46",
+        background: "#1f2937",
+        foreground: "#f9fafb",
+        cursor: "#f9fafb",
+        selectionBackground: "#4b5563",
       },
       fontFamily: "JetBrains Mono, Menlo, Monaco, monospace",
       fontSize: 13,
@@ -57,5 +57,5 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
     };
   }, [sessionId]);
 
-  return <div ref={containerRef} className="h-full w-full bg-zinc-950" />;
+  return <div ref={containerRef} className="h-full w-full rounded-[var(--radius-sm)]" />;
 }

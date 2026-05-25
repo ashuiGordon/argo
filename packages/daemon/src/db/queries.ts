@@ -3,6 +3,10 @@ import Database from "better-sqlite3";
 export class Queries {
   constructor(private db: Database.Database) {}
 
+  getDb(): Database.Database {
+    return this.db;
+  }
+
   // Users
   createUser(id: string, email: string, passwordHash: string) {
     return this.db

@@ -7,10 +7,10 @@ interface MessageToolbarProps {
 
 export function MessageToolbar({ onCopy, onQuote, onRegenerate }: MessageToolbarProps) {
   return (
-    <div className="absolute -top-8 right-2 flex gap-1 rounded border border-zinc-700 bg-zinc-800 p-0.5 opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+    <div className="absolute -top-8 right-2 flex gap-1 rounded-[var(--radius-sm)] border border-gray-200 bg-white p-0.5 opacity-0 shadow-md transition-opacity group-hover:opacity-100">
       <button
         onClick={onCopy}
-        className="rounded px-2 py-1 text-[10px] text-zinc-400 hover:bg-zinc-700 hover:text-white"
+        className="rounded px-2 py-1 text-[10px] text-gray-500 hover:bg-gray-100 hover:text-gray-900 cursor-pointer"
         title="Copy"
       >
         Copy
@@ -18,7 +18,7 @@ export function MessageToolbar({ onCopy, onQuote, onRegenerate }: MessageToolbar
       {onQuote && (
         <button
           onClick={onQuote}
-          className="rounded px-2 py-1 text-[10px] text-zinc-400 hover:bg-zinc-700 hover:text-white"
+          className="rounded px-2 py-1 text-[10px] text-gray-500 hover:bg-gray-100 hover:text-gray-900 cursor-pointer"
           title="Quote"
         >
           Quote
@@ -27,7 +27,7 @@ export function MessageToolbar({ onCopy, onQuote, onRegenerate }: MessageToolbar
       {onRegenerate && (
         <button
           onClick={onRegenerate}
-          className="rounded px-2 py-1 text-[10px] text-zinc-400 hover:bg-zinc-700 hover:text-white"
+          className="rounded px-2 py-1 text-[10px] text-gray-500 hover:bg-gray-100 hover:text-gray-900 cursor-pointer"
           title="Regenerate"
         >
           Retry

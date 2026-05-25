@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { SendMessageRequest } from "@argo/shared";
 import { getQueries } from "../db/init.js";
-import { getSessionManager } from "../providers/session-manager.js";
+import { getSessionManager } from "../session/session-manager.js";
 import type { Env } from "./types.js";
 
 export const messageRoutes = new Hono<Env>();

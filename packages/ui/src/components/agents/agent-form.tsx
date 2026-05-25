@@ -30,25 +30,25 @@ export function AgentForm({ initial, onSubmit, onCancel, submitLabel = "Create" 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="mb-1 block text-xs font-medium text-zinc-400">Name</label>
+        <label className="mb-1 block text-xs font-medium text-gray-600">Name</label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="My Custom Agent"
-          className="w-full rounded border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-[var(--radius-sm)] border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-zinc-400">Avatar Color</label>
+        <label className="mb-1 block text-xs font-medium text-gray-600">Avatar Color</label>
         <div className="flex gap-2">
           {COLORS.map((color) => (
             <button
               key={color}
               type="button"
               onClick={() => setAvatarColor(color)}
-              className={`h-8 w-8 rounded-full ${avatarColor === color ? "ring-2 ring-white ring-offset-2 ring-offset-zinc-900" : ""}`}
+              className={`h-8 w-8 rounded-full cursor-pointer ${avatarColor === color ? "ring-2 ring-gray-900 ring-offset-2" : ""}`}
               style={{ backgroundColor: color }}
             />
           ))}
@@ -56,13 +56,13 @@ export function AgentForm({ initial, onSubmit, onCancel, submitLabel = "Create" 
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-zinc-400">System Prompt</label>
+        <label className="mb-1 block text-xs font-medium text-gray-600">System Prompt</label>
         <textarea
           value={systemPrompt}
           onChange={(e) => setSystemPrompt(e.target.value)}
           placeholder="You are a helpful assistant that..."
           rows={6}
-          className="w-full rounded border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-[var(--radius-sm)] border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
       </div>
 
@@ -70,14 +70,14 @@ export function AgentForm({ initial, onSubmit, onCancel, submitLabel = "Create" 
         <button
           type="submit"
           disabled={!name.trim()}
-          className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-[var(--radius-sm)] bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
         >
           {submitLabel}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded bg-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-600"
+          className="rounded-[var(--radius-sm)] border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
         >
           Cancel
         </button>

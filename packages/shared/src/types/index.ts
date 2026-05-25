@@ -28,7 +28,7 @@ export interface Conversation {
 }
 
 export interface ConversationWithDetails extends Conversation {
-  agents: Pick<Agent, "id" | "name" | "avatarColor">[];
+  agents: Pick<Agent, "id" | "name" | "type" | "avatarColor">[];
   lastMessage?: { content: string; timestamp: string };
   unreadCount: number;
 }

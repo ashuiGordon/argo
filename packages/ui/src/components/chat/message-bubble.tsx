@@ -33,11 +33,11 @@ function CodeBlock({ children, className }: { children?: React.ReactNode; classN
 
   return (
     <div className="group/code relative">
-      <div className="flex items-center justify-between border-b border-white/[0.06] bg-[#0f0f13] px-3 py-1.5 rounded-t-[var(--radius-sm)]">
-        <span className="font-mono text-[10px] uppercase tracking-[0.28px] text-[#75758a]">{lang || "code"}</span>
+      <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-3 py-1.5 rounded-t-[var(--radius-sm)]">
+        <span className="font-mono text-[10px] uppercase tracking-[0.28px] text-gray-500">{lang || "code"}</span>
         <button
           onClick={handleCopy}
-          className="text-[10px] text-[#75758a] opacity-0 transition-opacity hover:text-white group-hover/code:opacity-100 cursor-pointer"
+          className="text-[10px] text-gray-400 opacity-0 transition-opacity hover:text-gray-700 group-hover/code:opacity-100 cursor-pointer"
         >
           {copied ? "Copied" : "Copy"}
         </button>
@@ -60,8 +60,8 @@ export function MessageBubble({ event }: MessageBubbleProps) {
       <div
         className={`max-w-[75%] rounded-[var(--radius-lg)] px-4 py-3 ${
           isUser
-            ? "bg-white text-[#17171c]"
-            : "bg-white/[0.05] border border-white/[0.08] text-white"
+            ? "bg-gray-900 text-white"
+            : "bg-gray-50 border border-gray-200 text-gray-900"
         }`}
       >
         {isUser ? (
@@ -69,7 +69,7 @@ export function MessageBubble({ event }: MessageBubbleProps) {
             {event.content}
           </div>
         ) : (
-          <div className="prose prose-sm prose-invert max-w-none break-words text-[14px] leading-[1.5] prose-p:my-1.5 prose-pre:my-2.5 prose-pre:rounded-[var(--radius-sm)] prose-pre:bg-[#0f0f13] prose-pre:p-0 prose-pre:overflow-hidden prose-code:text-[#ff7759] prose-code:font-mono prose-headings:text-white prose-headings:font-display prose-headings:tracking-tight prose-a:text-[#1863dc] prose-a:no-underline hover:prose-a:underline prose-strong:text-white">
+          <div className="prose prose-sm max-w-none break-words text-[14px] leading-[1.5] prose-p:my-1.5 prose-pre:my-2.5 prose-pre:rounded-[var(--radius-sm)] prose-pre:bg-gray-100 prose-pre:p-0 prose-pre:overflow-hidden prose-code:text-red-600 prose-code:font-mono prose-headings:text-gray-900 prose-headings:font-display prose-headings:tracking-tight prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
@@ -81,7 +81,7 @@ export function MessageBubble({ event }: MessageBubbleProps) {
                   if (isBlock) {
                     return <CodeBlock className={className}>{children}</CodeBlock>;
                   }
-                  return <code className={`${className || ""} rounded-[3px] bg-white/[0.08] px-1.5 py-0.5 text-[13px]`}>{children}</code>;
+                  return <code className={`${className || ""} rounded-[3px] bg-gray-100 px-1.5 py-0.5 text-[13px]`}>{children}</code>;
                 },
               }}
             >

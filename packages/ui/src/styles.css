@@ -7,27 +7,26 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* Brand & Accent */
-  --color-brand: #17171c;
-  --color-deep-green: #003c33;
-  --color-dark-navy: #071829;
-  --color-action-blue: #1863dc;
-  --color-coral: #ff7759;
-  --color-soft-coral: #ffad9b;
-  --color-focus-blue: #4c6ee6;
+  --color-brand: #111827;
+  --color-accent: #2563eb;
+  --color-accent-light: #3b82f6;
+  --color-coral: #ef4444;
+  --color-success: #16a34a;
 
   /* Surface & Background */
   --color-canvas: #ffffff;
-  --color-stone: #eeece7;
-  --color-pale-green: #edfce9;
-  --color-pale-blue: #f1f5ff;
+  --color-surface: #f9fafb;
+  --color-surface-alt: #f3f4f6;
+  --color-sidebar: #f8f9fa;
 
   /* Text & Rules */
-  --color-ink: #212121;
-  --color-muted: #93939f;
-  --color-slate-mid: #75758a;
-  --color-hairline: #d9d9dd;
+  --color-ink: #111827;
+  --color-ink-secondary: #4b5563;
+  --color-muted: #6b7280;
+  --color-faint: #9ca3af;
+  --color-hairline: #e5e7eb;
+  --color-border: #d1d5db;
   --color-border-light: #e5e7eb;
-  --color-card-border: #f2f2f2;
 
   /* Radius */
   --radius-xs: 4px;
@@ -52,17 +51,6 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Dark product surface */
-.surface-dark {
-  background: var(--color-brand);
-  color: #ffffff;
-}
-
-.surface-deep-green {
-  background: var(--color-deep-green);
-  color: #ffffff;
-}
-
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
@@ -79,13 +67,4 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-muted);
-}
-
-/* Dark mode scrollbar */
-.dark ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
 }

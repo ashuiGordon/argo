@@ -30,7 +30,7 @@ conversationRoutes.get("/", (c) => {
       pinned: !!conv.pinned,
       archived: !!conv.archived,
       isExternal,
-      agents: agents.map((a) => ({ id: a.id, name: a.name, avatarColor: a.avatar_color })),
+      agents: agents.map((a) => ({ id: a.id, name: a.name, type: a.type, avatarColor: a.avatar_color })),
       lastMessage,
       unreadCount: queries.getUnreadCount(userId, conv.id),
       updatedAt: conv.updated_at,

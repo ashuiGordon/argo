@@ -67,19 +67,19 @@ export function ConversationList() {
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-4">
-        <h2 className="font-display text-[15px] font-500 tracking-[-0.2px] text-white">
+        <h2 className="font-display text-[15px] font-500 tracking-[-0.2px] text-gray-900">
           Conversations
         </h2>
         <div className="flex gap-2">
           <button
             onClick={() => setShowGroupCreator(true)}
-            className="rounded-[var(--radius-pill)] border border-white/[0.15] px-3 py-1 text-[12px] font-500 text-[#93939f] transition-colors hover:border-white/[0.3] hover:text-white cursor-pointer"
+            className="rounded-[var(--radius-pill)] border border-gray-300 px-3 py-1 text-[12px] font-500 text-gray-600 transition-colors hover:border-gray-400 hover:text-gray-900 cursor-pointer"
           >
             Group
           </button>
           <button
             onClick={() => setShowAgentPicker(true)}
-            className="rounded-[var(--radius-pill)] bg-white px-3 py-1 text-[12px] font-500 text-[#17171c] transition-opacity hover:opacity-90 cursor-pointer"
+            className="rounded-[var(--radius-pill)] bg-gray-900 px-3 py-1 text-[12px] font-500 text-white transition-opacity hover:opacity-90 cursor-pointer"
           >
             + New
           </button>
@@ -112,7 +112,7 @@ export function ConversationList() {
           <>
             <button
               onClick={() => setShowExternal(!showExternal)}
-              className="mt-4 flex w-full items-center gap-2 px-3 py-2 text-[12px] font-mono uppercase tracking-[0.28px] text-[#93939f] hover:text-white transition-colors cursor-pointer"
+              className="mt-4 flex w-full items-center gap-2 px-3 py-2 text-[12px] font-mono uppercase tracking-[0.28px] text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
             >
               <span className={`inline-block transition-transform ${showExternal ? "rotate-90" : ""}`}>▸</span>
               External Sessions ({externalConversations.length})
@@ -136,7 +136,7 @@ export function ConversationList() {
         )}
 
         {conversations.length === 0 && (
-          <p className="px-3 py-8 text-center text-[13px] text-[#93939f]">
+          <p className="px-3 py-8 text-center text-[13px] text-gray-400">
             No conversations yet
           </p>
         )}

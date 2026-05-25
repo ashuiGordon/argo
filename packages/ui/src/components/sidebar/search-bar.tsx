@@ -23,7 +23,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         value={value}
         onChange={handleChange}
         placeholder="Search conversations..."
-        className="w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none"
+        className="w-full rounded-[var(--radius-sm)] border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-900 placeholder-gray-400 focus:border-gray-400 focus:outline-none"
       />
     </div>
   );

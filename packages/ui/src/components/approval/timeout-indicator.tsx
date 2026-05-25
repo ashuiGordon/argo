@@ -24,11 +24,11 @@ export function TimeoutIndicator({ createdAt }: TimeoutIndicatorProps) {
 
   return (
     <div className="mt-2">
-      <div className="flex items-center justify-between text-xs text-zinc-400">
+      <div className="flex items-center justify-between text-xs text-gray-500">
         <span>Auto-deny in {seconds}s</span>
         <span>{Math.round(pct)}%</span>
       </div>
-      <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-zinc-700">
+      <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-gray-200">
         <div
           className="h-full rounded-full bg-amber-500 transition-all"
           style={{ width: `${pct}%` }}

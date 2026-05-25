@@ -11,13 +11,13 @@ export function DiffCard({ fileName, oldContent, newContent }: DiffCardProps) {
   const lines = computeDiff(oldContent, newContent);
 
   return (
-    <div className="my-2 overflow-hidden rounded-lg border border-zinc-700 bg-zinc-900">
+    <div className="my-2 overflow-hidden rounded-[var(--radius-sm)] border border-gray-200 bg-white">
       <div
-        className="flex cursor-pointer items-center justify-between border-b border-zinc-700 px-3 py-2"
+        className="flex cursor-pointer items-center justify-between border-b border-gray-200 px-3 py-2"
         onClick={() => setCollapsed(!collapsed)}
       >
-        <span className="text-xs font-mono text-zinc-300">{fileName}</span>
-        <span className="text-[10px] text-zinc-500">{collapsed ? "▸" : "▾"}</span>
+        <span className="text-xs font-mono text-gray-700">{fileName}</span>
+        <span className="text-[10px] text-gray-400">{collapsed ? "▸" : "▾"}</span>
       </div>
       {!collapsed && (
         <div className="overflow-x-auto p-0 font-mono text-xs leading-5">
@@ -26,13 +26,13 @@ export function DiffCard({ fileName, oldContent, newContent }: DiffCardProps) {
               key={i}
               className={`px-3 ${
                 line.type === "add"
-                  ? "bg-green-950/30 text-green-300"
+                  ? "bg-green-50 text-green-800"
                   : line.type === "remove"
-                    ? "bg-red-950/30 text-red-300"
-                    : "text-zinc-400"
+                    ? "bg-red-50 text-red-800"
+                    : "text-gray-600"
               }`}
             >
-              <span className="mr-3 inline-block w-4 text-right text-zinc-600">
+              <span className="mr-3 inline-block w-4 text-right text-gray-400">
                 {line.type === "add" ? "+" : line.type === "remove" ? "-" : " "}
               </span>
               {line.content}

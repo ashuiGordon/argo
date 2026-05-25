@@ -46,16 +46,16 @@ export function ConversationMenu({ conversationId, pinned, archived, onAction, p
   return (
     <div
       ref={menuRef}
-      className="fixed z-50 w-40 rounded-md border border-zinc-700 bg-zinc-800 py-1 shadow-lg"
+      className="fixed z-50 w-40 rounded-[var(--radius-sm)] border border-gray-200 bg-white py-1 shadow-lg"
       style={{ top: position.y, left: position.x }}
     >
-      <button onClick={handlePin} className="w-full px-3 py-1.5 text-left text-sm text-zinc-300 hover:bg-zinc-700">
+      <button onClick={handlePin} className="w-full px-3 py-1.5 text-left text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
         {pinned ? "Unpin" : "Pin"}
       </button>
-      <button onClick={handleArchive} className="w-full px-3 py-1.5 text-left text-sm text-zinc-300 hover:bg-zinc-700">
+      <button onClick={handleArchive} className="w-full px-3 py-1.5 text-left text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
         {archived ? "Unarchive" : "Archive"}
       </button>
-      <button onClick={handleDelete} className="w-full px-3 py-1.5 text-left text-sm text-red-400 hover:bg-zinc-700">
+      <button onClick={handleDelete} className="w-full px-3 py-1.5 text-left text-sm text-red-600 hover:bg-gray-100 cursor-pointer">
         Delete
       </button>
     </div>

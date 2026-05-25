@@ -3,7 +3,7 @@ interface SkeletonProps {
 }
 
 export function Skeleton({ className = "" }: SkeletonProps) {
-  return <div className={`animate-pulse rounded bg-zinc-800 ${className}`} />;
+  return <div className={`animate-pulse rounded bg-gray-200 ${className}`} />;
 }
 
 export function MessageSkeleton() {
@@ -37,8 +37,8 @@ export function ConversationListSkeleton() {
 
 export function PageSkeleton() {
   return (
-    <div className="flex h-screen bg-zinc-950">
-      <div className="w-72 border-r border-zinc-800 bg-zinc-900">
+    <div className="flex h-screen bg-white">
+      <div className="w-72 border-r border-gray-200 bg-gray-50">
         <ConversationListSkeleton />
       </div>
       <div className="flex-1 space-y-4 p-8">

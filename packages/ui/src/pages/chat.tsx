@@ -92,20 +92,20 @@ export function ChatPage() {
     : [];
 
   return (
-    <div className="flex h-screen bg-[#17171c]">
+    <div className="flex h-screen bg-white">
       {/* Sidebar */}
-      <aside className="w-[280px] shrink-0 border-r border-white/[0.08] bg-[#17171c] flex flex-col">
+      <aside className="w-[280px] shrink-0 border-r border-gray-200 bg-[#f8f9fa] flex flex-col">
         <ConversationList />
-        <div className="border-t border-white/[0.08] px-4 py-3 space-y-1">
+        <div className="border-t border-gray-200 px-4 py-3 space-y-1">
           <button
             onClick={() => navigate("/agents")}
-            className="w-full rounded-[var(--radius-sm)] px-3 py-2 text-left text-[13px] text-[#93939f] transition-colors hover:bg-white/[0.04] hover:text-white cursor-pointer"
+            className="w-full rounded-[var(--radius-sm)] px-3 py-2 text-left text-[13px] text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 cursor-pointer"
           >
             Manage Agents
           </button>
           <button
             onClick={logout}
-            className="w-full rounded-[var(--radius-sm)] px-3 py-2 text-left text-[13px] text-[#93939f] transition-colors hover:bg-white/[0.04] hover:text-white cursor-pointer"
+            className="w-full rounded-[var(--radius-sm)] px-3 py-2 text-left text-[13px] text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 cursor-pointer"
           >
             Sign Out
           </button>
@@ -113,7 +113,7 @@ export function ChatPage() {
       </aside>
 
       {/* Main content */}
-      <main className="flex flex-1 flex-col bg-[#0f0f13]">
+      <main className="flex flex-1 flex-col bg-white">
         {activeConversationId ? (
           <>
             <ViewTabs
@@ -126,7 +126,7 @@ export function ChatPage() {
                 {isGroupChat && currentTasks.length > 0 && <TaskDag tasks={currentTasks} />}
                 <MessageList events={currentEvents} isStreaming={isStreaming} />
                 {isExternal ? (
-                  <div className="border-t border-white/[0.08] px-4 py-3 text-center text-[13px] text-[#93939f]">
+                  <div className="border-t border-gray-200 px-4 py-3 text-center text-[13px] text-gray-500">
                     Observe-only — external session
                   </div>
                 ) : (
@@ -136,17 +136,17 @@ export function ChatPage() {
             ) : ptySessionId ? (
               <TerminalView sessionId={ptySessionId} />
             ) : (
-              <div className="flex flex-1 items-center justify-center text-[#93939f] text-sm">
+              <div className="flex flex-1 items-center justify-center text-gray-400 text-sm">
                 Starting terminal…
               </div>
             )}
           </>
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-6">
-            <h2 className="font-display text-[32px] font-400 tracking-tight text-white leading-[1.0]">
+            <h2 className="font-display text-[32px] font-400 tracking-tight text-gray-900 leading-[1.0]">
               Argo
             </h2>
-            <p className="text-[14px] text-[#93939f]">
+            <p className="text-[14px] text-gray-500">
               Select a conversation or create a new one
             </p>
           </div>

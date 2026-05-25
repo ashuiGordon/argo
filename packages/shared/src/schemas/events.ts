@@ -97,6 +97,41 @@ export const UsageEvent = BaseEvent.extend({
   cacheWriteTokens: z.number().int().optional(),
 });
 
+export const StreamingDeltaEvent = BaseEvent.extend({
+  type: z.literal("streaming_delta"),
+  delta: z.string(),
+  blockIndex: z.number().int().default(0),
+});
+
+export const TokenUsageEvent = BaseEvent.extend({
+  type: z.literal("token_usage"),
+  provider: Provider,
+  model: z.string().optional(),
+  inputTokens: z.number().int(),
+  outputTokens: z.number().int(),
+  totalTokens: z.number().int(),
+  cachedInputTokens: z.number().int().default(0),
+  contextUsedTokens: z.number().int().optional(),
+  contextWindowTokens: z.number().int().optional(),
+  contextPercent: z.number().optional(),
+});
+
+export const HookEventType = z.enum([
+  "SessionStart", "SessionEnd",
+  "PreToolUse", "PostToolUse",
+  "PermissionRequest", "PermissionDenied",
+  "Elicitation", "ElicitationResult",
+  "SubagentStart", "SubagentStop",
+  "Notification", "Stop",
+]);
+export type HookEventType = z.infer<typeof HookEventType>;
+
+export const HookEvent = BaseEvent.extend({
+  type: z.literal("hook_event"),
+  hookType: HookEventType,
+  hookPayload: z.record(z.unknown()),
+});
+
 export const NormalizedEvent = z.discriminatedUnion("type", [
   SessionStartEvent,
   SessionEndEvent,
@@ -108,6 +143,9 @@ export const NormalizedEvent = z.discriminatedUnion("type", [
   TaskStatusEvent,
   ErrorEvent,
   UsageEvent,
+  StreamingDeltaEvent,
+  TokenUsageEvent,
+  HookEvent,
 ]);
 export type NormalizedEvent = z.infer<typeof NormalizedEvent>;
 
@@ -121,3 +159,6 @@ export type ApprovalResolvedEvent = z.infer<typeof ApprovalResolvedEvent>;
 export type TaskStatusEvent = z.infer<typeof TaskStatusEvent>;
 export type ErrorEvent = z.infer<typeof ErrorEvent>;
 export type UsageEvent = z.infer<typeof UsageEvent>;
+export type StreamingDeltaEvent = z.infer<typeof StreamingDeltaEvent>;
+export type TokenUsageEvent = z.infer<typeof TokenUsageEvent>;
+export type HookEvent = z.infer<typeof HookEvent>;
