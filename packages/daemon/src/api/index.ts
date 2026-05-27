@@ -9,6 +9,8 @@ import { approvalRoutes } from "./approvals.js";
 import { sessionRoutes } from "./sessions.js";
 import { pinRoutes } from "./pins.js";
 import { systemRoutes } from "./system.js";
+import { deployRoutes } from "./deployments.js";
+import { getAllPresets } from "../orchestrator/team-presets.js";
 import type { Env } from "./types.js";
 
 export function createApi() {
@@ -27,7 +29,9 @@ export function createApi() {
   app.route("/api/approvals", approvalRoutes);
   app.route("/api/sessions", sessionRoutes);
   app.route("/api/system", systemRoutes);
+  app.route("/api/deployments", deployRoutes);
 
+  app.get("/api/team-presets", (c) => c.json({ presets: getAllPresets() }));
   app.get("/api/health", (c) => c.json({ status: "ok" }));
 
   return app;

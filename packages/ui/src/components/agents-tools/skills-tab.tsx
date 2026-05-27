@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { curatedSkills, type CuratedSkill } from "../../data/curated-skills";
 import { api } from "../../services/api-client";
-import { getAgentLogo } from "../../lib/agent-logos";
+import { getAgentLogo, getAgentAvatar } from "../../lib/agent-logos";
 
 interface AgentOption {
   id: string;
   name: string;
   type: string;
   avatarColor: string;
+  role?: string;
   config?: {
     skills?: Array<{ name: string; description: string; prompt: string }>;
   };
@@ -151,7 +152,7 @@ export function SkillsTab() {
                     }`}
                   >
                     {(() => {
-                      const logo = getAgentLogo(agent.type);
+                      const logo = getAgentAvatar(agent.role) || getAgentLogo(agent.type);
                       return logo ? (
                         <img src={logo} alt="" className="h-6 w-6 rounded-full" />
                       ) : (

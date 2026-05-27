@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
 import { AgentForm } from "../agents/agent-form";
+import { AgentAvatar } from "../shared/agent-avatar";
 import { api } from "../../services/api-client";
-import { getAgentLogo } from "../../lib/agent-logos";
 
 interface Agent {
   id: string;
   name: string;
   type: string;
   avatarColor: string;
+  avatarUrl?: string;
   systemPrompt?: string;
+  role?: string;
+  model?: string;
+  disallowedTools?: string[];
   capabilities: string[];
   config?: {
     mcpServers?: Array<{ name: string; command: string; args?: string[]; env?: Record<string, string> }>;
@@ -30,13 +34,13 @@ export function MyAgentsTab() {
     setAgents(res.agents as Agent[]);
   }
 
-  async function handleCreate(data: { name: string; type?: string; avatarColor: string; systemPrompt: string; capabilities: string[]; config?: Record<string, unknown> }) {
+  async function handleCreate(data: { name: string; type?: string; avatarColor: string; systemPrompt: string; role?: string; model?: string; disallowedTools?: string[]; capabilities: string[]; config?: Record<string, unknown> }) {
     await api.agents.create(data);
     setShowForm(false);
     loadAgents();
   }
 
-  async function handleUpdate(data: { name: string; type?: string; avatarColor: string; systemPrompt: string; capabilities: string[]; config?: Record<string, unknown> }) {
+  async function handleUpdate(data: { name: string; type?: string; avatarColor: string; systemPrompt: string; role?: string; model?: string; disallowedTools?: string[]; capabilities: string[]; config?: Record<string, unknown> }) {
     if (!editingAgent) return;
     await api.agents.update(editingAgent.id, data);
     setEditingAgent(null);
@@ -65,14 +69,19 @@ export function MyAgentsTab() {
       {(showForm || editingAgent) && (
         <div className="mb-6 rounded-[var(--radius-md)] border border-gray-200 bg-gray-50 p-5 animate-slide-up">
           <h2 className="mb-3 text-[15px] font-500 text-gray-900">
-            {editingAgent ? "Edit Agent" : "New Agent"}
+            {editingAgent ? `Edit ${editingAgent.name}` : "New Agent"}
           </h2>
           <AgentForm
+            agentId={editingAgent?.id}
             initial={editingAgent ? {
               name: editingAgent.name,
               type: (editingAgent.type === "claude_code" || editingAgent.type === "codex") ? editingAgent.type : "claude_code",
               avatarColor: editingAgent.avatarColor,
+              avatarUrl: editingAgent.avatarUrl,
               systemPrompt: editingAgent.systemPrompt || "",
+              role: editingAgent.role,
+              model: editingAgent.model,
+              disallowedTools: editingAgent.disallowedTools,
               config: {
                 mcpServers: editingAgent.config?.mcpServers?.map((s) => ({
                   name: s.name,
@@ -98,23 +107,25 @@ export function MyAgentsTab() {
               i < agents.length - 1 ? "border-b border-gray-100" : ""
             }`}
           >
-            {(() => {
-              const logo = getAgentLogo(agent.type);
-              return logo ? (
-                <img src={logo} alt={agent.name} className="h-8 w-8 shrink-0 rounded-full object-cover" />
-              ) : (
-                <div
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-600 text-white"
-                  style={{ backgroundColor: agent.avatarColor }}
-                >
-                  {agent.name[0]}
-                </div>
-              );
-            })()}
+            <AgentAvatar agent={agent} size={32} />
             <div className="flex-1 min-w-0">
               <div className="text-[13px] font-500 text-gray-900">{agent.name}</div>
               <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-[11px] font-mono text-gray-400">{agent.type}</span>
+                {agent.role && (
+                  <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-500 text-gray-600 capitalize">
+                    {agent.role}
+                  </span>
+                )}
+                {agent.model && (
+                  <span className="text-[10px] font-mono text-gray-400">
+                    {agent.model}
+                  </span>
+                )}
+                {agent.disallowedTools && agent.disallowedTools.length > 0 && (
+                  <span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-500 text-red-500">
+                    {agent.disallowedTools.length} blocked
+                  </span>
+                )}
                 {agent.config?.mcpServers && agent.config.mcpServers.length > 0 && (
                   <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-500 text-blue-600">
                     {agent.config.mcpServers.length} MCP
@@ -127,22 +138,22 @@ export function MyAgentsTab() {
                 )}
               </div>
             </div>
-            {agent.type === "custom" && (
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setEditingAgent(agent)}
-                  className="rounded-[var(--radius-sm)] px-2.5 py-1 text-[11px] text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
-                >
-                  Edit
-                </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setEditingAgent(agent)}
+                className="rounded-[var(--radius-sm)] px-2.5 py-1 text-[11px] text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
+              >
+                Edit
+              </button>
+              {agent.type === "custom" && (
                 <button
                   onClick={() => handleDelete(agent.id)}
                   className="rounded-[var(--radius-sm)] px-2.5 py-1 text-[11px] text-gray-500 transition-colors hover:bg-gray-100 hover:text-red-600 cursor-pointer"
                 >
                   Delete
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         ))}
         {agents.length === 0 && (

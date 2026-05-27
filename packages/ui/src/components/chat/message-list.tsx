@@ -4,6 +4,7 @@ import { MessageBubble } from "./message-bubble";
 import { ArtifactCard } from "./artifact-card";
 import { StreamingIndicator } from "./streaming-message";
 import { ApprovalCard } from "../approval/approval-card";
+import { DeployCard } from "./deploy-card";
 
 interface EventEntry {
   sequence: number;
@@ -152,6 +153,21 @@ export function MessageList({ events, isStreaming, conversationId }: MessageList
                       : ` merge conflicts on ${event.payload.branch}: ${event.payload.conflicts?.join(", ")}`}
                   </span>
                 </div>
+              );
+            case "deploy_status":
+              return (
+                <DeployCard
+                  key={event.sequence}
+                  deployment={event.payload as unknown as {
+                    deploymentId: string;
+                    deployType: "preview" | "static" | "container" | "package";
+                    status: string;
+                    target: string;
+                    url?: string;
+                    error?: string;
+                    logs?: string[];
+                  }}
+                />
               );
             default:
               return null;

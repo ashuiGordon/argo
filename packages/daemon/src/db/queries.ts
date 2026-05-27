@@ -35,13 +35,16 @@ export class Queries {
     capabilities: string[],
     config: Record<string, unknown>,
     systemPrompt?: string,
+    role?: string,
+    model?: string,
+    disallowedTools?: string[],
   ) {
     return this.db
       .prepare(
-        `INSERT INTO agents (id, name, type, avatar_color, capabilities, config, system_prompt)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO agents (id, name, type, avatar_color, capabilities, config, system_prompt, role, model, disallowed_tools)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
-      .run(id, name, type, avatarColor, JSON.stringify(capabilities), JSON.stringify(config), systemPrompt ?? null);
+      .run(id, name, type, avatarColor, JSON.stringify(capabilities), JSON.stringify(config), systemPrompt ?? null, role ?? null, model ?? null, disallowedTools ? JSON.stringify(disallowedTools) : null);
   }
 
   getAgents() {
@@ -50,7 +53,11 @@ export class Queries {
       name: string;
       type: string;
       avatar_color: string;
+      avatar_url: string | null;
       system_prompt: string | null;
+      role: string | null;
+      model: string | null;
+      disallowed_tools: string | null;
       capabilities: string;
       config: string;
       created_at: string;
@@ -59,26 +66,34 @@ export class Queries {
 
   getAgent(id: string) {
     return this.db.prepare("SELECT * FROM agents WHERE id = ?").get(id) as
-      | { id: string; name: string; type: string; avatar_color: string; system_prompt: string | null; capabilities: string; config: string }
+      | { id: string; name: string; type: string; avatar_color: string; avatar_url: string | null; system_prompt: string | null; role: string | null; model: string | null; disallowed_tools: string | null; capabilities: string; config: string }
       | undefined;
   }
 
   updateAgent(
     id: string,
-    updates: { name?: string; avatarColor?: string; systemPrompt?: string; capabilities?: string[]; config?: Record<string, unknown> },
+    updates: { name?: string; avatarColor?: string; avatarUrl?: string | null; systemPrompt?: string; role?: string | null; model?: string | null; disallowedTools?: string[]; capabilities?: string[]; config?: Record<string, unknown> },
   ) {
     const fields: string[] = [];
     const values: unknown[] = [];
 
     if (updates.name) { fields.push("name = ?"); values.push(updates.name); }
     if (updates.avatarColor) { fields.push("avatar_color = ?"); values.push(updates.avatarColor); }
+    if (updates.avatarUrl !== undefined) { fields.push("avatar_url = ?"); values.push(updates.avatarUrl); }
     if (updates.systemPrompt !== undefined) { fields.push("system_prompt = ?"); values.push(updates.systemPrompt); }
+    if (updates.role !== undefined) { fields.push("role = ?"); values.push(updates.role); }
+    if (updates.model !== undefined) { fields.push("model = ?"); values.push(updates.model); }
+    if (updates.disallowedTools !== undefined) { fields.push("disallowed_tools = ?"); values.push(JSON.stringify(updates.disallowedTools)); }
     if (updates.capabilities) { fields.push("capabilities = ?"); values.push(JSON.stringify(updates.capabilities)); }
     if (updates.config) { fields.push("config = ?"); values.push(JSON.stringify(updates.config)); }
 
     if (fields.length === 0) return;
     values.push(id);
     return this.db.prepare(`UPDATE agents SET ${fields.join(", ")} WHERE id = ?`).run(...values);
+  }
+
+  updateAgentAvatarUrl(id: string, avatarUrl: string) {
+    return this.db.prepare("UPDATE agents SET avatar_url = ? WHERE id = ?").run(avatarUrl, id);
   }
 
   deleteAgent(id: string) {
@@ -177,11 +192,11 @@ export class Queries {
   getConversationAgents(conversationId: string) {
     return this.db
       .prepare(
-        `SELECT a.id, a.name, a.avatar_color, a.type, a.system_prompt, a.config FROM agents a
+        `SELECT a.id, a.name, a.avatar_color, a.avatar_url, a.type, a.role, a.system_prompt, a.config FROM agents a
          JOIN conversation_agents ca ON ca.agent_id = a.id
          WHERE ca.conversation_id = ?`,
       )
-      .all(conversationId) as Array<{ id: string; name: string; avatar_color: string; type: string; system_prompt: string | null; config: string }>;
+      .all(conversationId) as Array<{ id: string; name: string; avatar_color: string; avatar_url: string | null; type: string; role: string | null; system_prompt: string | null; config: string }>;
   }
 
   // Events
@@ -408,17 +423,100 @@ export class Queries {
       .all(sessionId) as Array<{ payload: string; timestamp: string }>;
   }
 
-  // Argo state
-  getArgoState(conversationId: string): string | null {
+  // Team preset
+  getTeamPreset(conversationId: string): string | null {
     const row = this.db
-      .prepare("SELECT argo_state FROM conversations WHERE id = ?")
-      .get(conversationId) as { argo_state: string | null } | undefined;
-    return row?.argo_state ?? null;
+      .prepare("SELECT team_preset FROM conversations WHERE id = ?")
+      .get(conversationId) as { team_preset: string | null } | undefined;
+    return row?.team_preset ?? null;
   }
 
-  updateArgoState(conversationId: string, state: string) {
+  updateTeamPreset(conversationId: string, presetId: string | null) {
     return this.db
-      .prepare("UPDATE conversations SET argo_state = ?, updated_at = datetime('now') WHERE id = ?")
-      .run(state, conversationId);
+      .prepare("UPDATE conversations SET team_preset = ?, updated_at = datetime('now') WHERE id = ?")
+      .run(presetId, conversationId);
+  }
+
+  getAgentsByRole(role: string) {
+    return this.db
+      .prepare("SELECT * FROM agents WHERE role = ?")
+      .all(role) as Array<{
+      id: string;
+      name: string;
+      type: string;
+      avatar_color: string;
+      system_prompt: string | null;
+      role: string | null;
+      model: string | null;
+      disallowed_tools: string | null;
+      capabilities: string;
+      config: string;
+    }>;
+  }
+
+  // Deployments
+  createDeployment(
+    id: string,
+    conversationId: string,
+    type: string,
+    target: string,
+    workspace: string,
+    sessionId?: string,
+    metadata?: Record<string, unknown>,
+  ) {
+    return this.db
+      .prepare(
+        `INSERT INTO deployments (id, conversation_id, session_id, type, target, workspace, metadata)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .run(id, conversationId, sessionId ?? null, type, target, workspace, JSON.stringify(metadata ?? {}));
+  }
+
+  updateDeploymentStatus(id: string, status: string, url?: string, metadata?: Record<string, unknown>) {
+    if (url && metadata) {
+      return this.db
+        .prepare("UPDATE deployments SET status = ?, url = ?, metadata = ?, updated_at = datetime('now') WHERE id = ?")
+        .run(status, url, JSON.stringify(metadata), id);
+    }
+    if (url) {
+      return this.db
+        .prepare("UPDATE deployments SET status = ?, url = ?, updated_at = datetime('now') WHERE id = ?")
+        .run(status, url, id);
+    }
+    if (metadata) {
+      return this.db
+        .prepare("UPDATE deployments SET status = ?, metadata = ?, updated_at = datetime('now') WHERE id = ?")
+        .run(status, JSON.stringify(metadata), id);
+    }
+    return this.db
+      .prepare("UPDATE deployments SET status = ?, updated_at = datetime('now') WHERE id = ?")
+      .run(status, id);
+  }
+
+  getDeployment(id: string) {
+    return this.db.prepare("SELECT * FROM deployments WHERE id = ?").get(id) as
+      | { id: string; conversation_id: string; session_id: string | null; type: string; status: string; target: string; url: string | null; workspace: string; metadata: string; created_at: string; updated_at: string }
+      | undefined;
+  }
+
+  getDeployments(conversationId: string) {
+    return this.db
+      .prepare("SELECT * FROM deployments WHERE conversation_id = ? ORDER BY created_at DESC")
+      .all(conversationId) as Array<{
+      id: string; conversation_id: string; session_id: string | null; type: string; status: string;
+      target: string; url: string | null; workspace: string; metadata: string; created_at: string; updated_at: string;
+    }>;
+  }
+
+  getActiveDeployments() {
+    return this.db
+      .prepare("SELECT * FROM deployments WHERE status IN ('pending', 'building') ORDER BY created_at DESC")
+      .all() as Array<{
+      id: string; conversation_id: string; type: string; status: string; target: string; workspace: string;
+    }>;
+  }
+
+  deleteDeployment(id: string) {
+    return this.db.prepare("DELETE FROM deployments WHERE id = ?").run(id);
   }
 }

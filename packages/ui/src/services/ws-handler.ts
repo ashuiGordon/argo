@@ -1,4 +1,4 @@
-import type { ServerMessage, NormalizedEvent, TaskStatus, ArgoPhase } from "@argo/shared";
+import type { ServerMessage, NormalizedEvent, TaskStatus } from "@argo/shared";
 import { useConversationsStore } from "../stores/conversations";
 import { useOrchestratorStore } from "../stores/orchestrator";
 import { useSessionsStore } from "../stores/sessions";
@@ -31,16 +31,12 @@ export function initWsHandler() {
           );
         }
 
-        if (payload.type === "argo_phase_change") {
-          const argoPayload = payload as { phase: ArgoPhase; previousPhase: ArgoPhase };
-          const currentState = store.argoStates?.get(activeId);
-          store.updateArgoState(activeId, {
-            phase: argoPayload.phase,
-            featureDir: currentState?.featureDir || "",
-            clarifyDone: currentState?.clarifyDone || argoPayload.phase !== "clarify",
-            artifacts: currentState?.artifacts || {},
-            implementProgress: currentState?.implementProgress,
-            reviewResult: currentState?.reviewResult,
+        if (payload.type === "team_phase_change") {
+          const phasePayload = payload as { phase: string; previousPhase?: string; presetId?: string };
+          store.updateTeamPhase(activeId, {
+            phase: phasePayload.phase,
+            previousPhase: phasePayload.previousPhase,
+            presetId: phasePayload.presetId,
           });
         }
 

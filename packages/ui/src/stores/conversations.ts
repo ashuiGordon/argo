@@ -1,24 +1,30 @@
 import { create } from "zustand";
-import type { ConversationWithDetails, NormalizedEvent, ArgoState } from "@argo/shared";
+import type { ConversationWithDetails, NormalizedEvent } from "@argo/shared";
+
+interface TeamPhaseState {
+  phase: string;
+  previousPhase?: string;
+  presetId?: string;
+}
 
 interface ConversationsState {
   conversations: ConversationWithDetails[];
   activeConversationId: string | null;
   events: Map<string, Array<{ sequence: number; type: string; payload: NormalizedEvent; timestamp: string }>>;
-  argoStates: Map<string, ArgoState>;
+  teamPhases: Map<string, TeamPhaseState>;
   setConversations: (conversations: ConversationWithDetails[]) => void;
   setActiveConversation: (id: string | null) => void;
   clearUnread: (conversationId: string) => void;
   addEvent: (conversationId: string, event: { sequence: number; type: string; payload: NormalizedEvent; timestamp: string }) => void;
   updateStreamingMessage: (conversationId: string, sessionId: string, content: string, final: boolean) => void;
-  updateArgoState: (conversationId: string, state: ArgoState) => void;
+  updateTeamPhase: (conversationId: string, state: TeamPhaseState) => void;
 }
 
 export const useConversationsStore = create<ConversationsState>((set, get) => ({
   conversations: [],
   activeConversationId: null,
   events: new Map(),
-  argoStates: new Map(),
+  teamPhases: new Map(),
 
   setConversations: (conversations) => set({ conversations }),
 
@@ -58,9 +64,9 @@ export const useConversationsStore = create<ConversationsState>((set, get) => ({
     }
   },
 
-  updateArgoState: (conversationId, state) => {
-    const argoStates = new Map(get().argoStates);
-    argoStates.set(conversationId, state);
-    set({ argoStates });
+  updateTeamPhase: (conversationId, state) => {
+    const teamPhases = new Map(get().teamPhases);
+    teamPhases.set(conversationId, state);
+    set({ teamPhases });
   },
 }));

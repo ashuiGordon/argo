@@ -3,9 +3,9 @@ import { EventPersistence } from "../event-bus/persist.js";
 import { getActiveSessionByConversation, registerActiveSession, unregisterActiveSession, updateSessionStatus } from "./session-store.js";
 import { clearPendingApprovalsForSession } from "../approval/dual-channel.js";
 import { runGroupChat } from "../orchestrator/group-chat.js";
-import { runArgoPipeline } from "../orchestrator/argo-pipeline.js";
+import { getPreset } from "../orchestrator/team-presets.js";
 import { broadcastToConversation } from "../ws/index.js";
-import type { NormalizedEvent, McpServerConfig, SkillConfig, ArgoState } from "@argo/shared";
+import type { NormalizedEvent, McpServerConfig, SkillConfig } from "@argo/shared";
 import type { AdapterConfig, AdapterCallbacks, ManagedRuntime } from "../adapters/types.js";
 import { randomUUID } from "node:crypto";
 
@@ -61,10 +61,6 @@ export class SessionManager {
     };
     this.persistence.persist(userEvent, conversationId);
 
-    if (conversation?.mode === "argo") {
-      return this.handleArgoPipeline(conversationId, content, agents, resolvedWorkspace);
-    }
-
     if (conversation?.mode === "group" && agents.length > 1) {
       return this.handleGroupChat(conversationId, content, agents, resolvedWorkspace);
     }
@@ -92,29 +88,11 @@ export class SessionManager {
       throw new Error("No moderator agent found for group chat");
     }
 
-    runGroupChat(conversationId, sessionId, content, agents, moderator, workspace);
-    return sessionId;
-  }
+    // Resolve team preset if set
+    const presetId = queries.getTeamPreset(conversationId);
+    const teamPreset = presetId ? getPreset(presetId) : undefined;
 
-  private async handleArgoPipeline(
-    conversationId: string,
-    content: string,
-    agents: AgentWithConfig[],
-    workspace: string,
-  ): Promise<string> {
-    const sessionId = randomUUID();
-    const queries = getQueries();
-
-    // Load existing argo state for resume capability
-    const stateJson = queries.getArgoState(conversationId);
-    let existingState: ArgoState | null = null;
-    if (stateJson) {
-      try {
-        existingState = JSON.parse(stateJson) as ArgoState;
-      } catch { /* start fresh */ }
-    }
-
-    runArgoPipeline(conversationId, sessionId, content, agents, workspace, existingState);
+    runGroupChat(conversationId, sessionId, content, agents, moderator, workspace, teamPreset);
     return sessionId;
   }
 

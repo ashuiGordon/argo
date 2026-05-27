@@ -25,6 +25,23 @@ Your role:
 ## Chat History:
 {{HISTORY}}`;
 
+export const PRESET_MODERATOR_ADDON = `
+## Team Preset: {{PRESET_NAME}}
+{{PRESET_DESCRIPTION}}
+
+### Recommended Pipeline:
+{{PIPELINE_STEPS}}
+
+### Guidance:
+{{MODERATOR_HINT}}
+
+IMPORTANT: This pipeline is a GUIDELINE, not a rigid script. You should:
+- Skip steps when they are unnecessary (e.g., skip "clarify" if requirements are obvious)
+- Loop back to earlier stages if a later stage fails (e.g., review fails → back to implement)
+- Parallelize steps when their inputs are independent
+- Adapt based on the user's actual request — a simple question doesn't need the full pipeline
+`;
+
 export const PARTICIPANT_REQUEST_PROMPT = `You are @{{AGENT_NAME}} participating in a group chat.
 
 The moderator has assigned you a task. Complete it using the tools available to you in your workspace.

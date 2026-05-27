@@ -29,7 +29,7 @@ conversationRoutes.get("/", (c) => {
       workspace: conv.workspace || null,
       pinned: !!conv.pinned,
       archived: !!conv.archived,
-      agents: agents.map((a) => ({ id: a.id, name: a.name, type: a.type, avatarColor: a.avatar_color })),
+      agents: agents.map((a) => ({ id: a.id, name: a.name, type: a.type, avatarColor: a.avatar_color, avatarUrl: a.avatar_url || undefined, role: a.role || undefined })),
       lastMessage,
       unreadCount: queries.getUnreadCount(userId, conv.id),
       updatedAt: conv.updated_at,
@@ -54,6 +54,10 @@ conversationRoutes.post("/", async (c) => {
     queries.addConversationAgent(id, agentId);
   }
 
+  if (parsed.teamPresetId) {
+    queries.updateTeamPreset(id, parsed.teamPresetId);
+  }
+
   const convAgents = queries.getConversationAgents(id);
   return c.json(
     {
@@ -61,7 +65,8 @@ conversationRoutes.post("/", async (c) => {
       title,
       mode: parsed.mode,
       moderatorAgentId: parsed.moderatorAgentId,
-      agents: convAgents.map((a) => ({ id: a.id, name: a.name, avatarColor: a.avatar_color })),
+      teamPresetId: parsed.teamPresetId,
+      agents: convAgents.map((a) => ({ id: a.id, name: a.name, type: a.type, avatarColor: a.avatar_color, role: a.role || undefined })),
     },
     201,
   );

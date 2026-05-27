@@ -12,6 +12,10 @@ async function main() {
   markCrashedSessionsOnStartup();
 
   const app = createApi();
+  app.onError((err, c) => {
+    console.error("[API Error]", c.req.method, c.req.path, err.message, err.stack?.split("\n").slice(0, 3).join("\n"));
+    return c.text("Internal Server Error", 500);
+  });
 
   const server = createAdaptorServer({ fetch: app.fetch, port: PORTS.DAEMON });
   const wss = setupWebSocket(server as unknown as import("node:http").Server);

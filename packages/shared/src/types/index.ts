@@ -23,43 +23,48 @@ export interface AgentConfig {
   [key: string]: unknown;
 }
 
+export type AgentRole = "architect" | "planner" | "executor" | "reviewer" | "debugger" | "tester" | "designer" | "ops";
+
+export type AgentModel = "opus" | "sonnet" | "haiku";
+
 export interface Agent {
   id: string;
   name: string;
   type: "claude_code" | "codex" | "custom";
   avatarColor: string;
+  avatarUrl?: string;
   systemPrompt?: string;
+  role?: AgentRole;
+  model?: AgentModel;
+  disallowedTools?: string[];
   capabilities: string[];
   config: AgentConfig;
   createdAt: string;
 }
 
-export type ArgoPhase = "clarify" | "specify" | "plan" | "tasks" | "implement" | "review" | "commit" | "done";
+export interface PipelineStage {
+  name: string;
+  assignTo: AgentRole;
+  description: string;
+  canSkip: boolean;
+}
 
-export interface ArgoState {
-  phase: ArgoPhase;
-  featureDir: string;
-  clarifyDone: boolean;
-  artifacts: {
-    spec?: boolean;
-    plan?: boolean;
-    tasks?: boolean;
-  };
-  implementProgress?: {
-    total: number;
-    completed: number;
-  };
-  reviewResult?: "pass" | "fail";
-  error?: string;
+export interface TeamPreset {
+  id: string;
+  name: string;
+  description: string;
+  roles: AgentRole[];
+  pipeline: PipelineStage[];
+  moderatorHint: string;
 }
 
 export interface Conversation {
   id: string;
   userId: string;
   title: string;
-  mode: "single" | "group" | "argo";
+  mode: "single" | "group";
   moderatorAgentId?: string;
-  argoState?: ArgoState | null;
+  teamPresetId?: string;
   pinned: boolean;
   archived: boolean;
   createdAt: string;
@@ -67,7 +72,7 @@ export interface Conversation {
 }
 
 export interface ConversationWithDetails extends Conversation {
-  agents: Pick<Agent, "id" | "name" | "type" | "avatarColor">[];
+  agents: Pick<Agent, "id" | "name" | "type" | "avatarColor" | "avatarUrl" | "role">[];
   lastMessage?: { content: string; timestamp: string };
   unreadCount: number;
   workspace?: string | null;
@@ -119,6 +124,32 @@ export interface Task {
   maxRetries: number;
   createdAt: string;
   completedAt?: string;
+}
+
+export type DeployType = "preview" | "static" | "container" | "package";
+export type DeployStatus = "pending" | "building" | "deployed" | "failed" | "cancelled";
+export type DeployTarget = "local" | "vercel" | "netlify" | "docker" | "fly" | "zip" | "tar";
+
+export interface Deployment {
+  id: string;
+  conversationId: string;
+  sessionId?: string;
+  type: DeployType;
+  status: DeployStatus;
+  target: DeployTarget;
+  url?: string;
+  workspace: string;
+  metadata?: {
+    logs?: string[];
+    error?: string;
+    buildCommand?: string;
+    framework?: string;
+    port?: number;
+    imageTag?: string;
+    filename?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type ServerMessage =

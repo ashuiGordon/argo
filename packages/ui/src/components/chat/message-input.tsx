@@ -4,12 +4,15 @@ import { getFileName, detectLanguage } from "./artifacts/utils";
 import { MentionPopup, type MentionItem } from "./mention-popup";
 import { useFileSearch } from "./use-file-search";
 import { api } from "../../services/api-client";
-import { getAgentLogo } from "../../lib/agent-logos";
+import { getAgentLogo, getAgentAvatar } from "../../lib/agent-logos";
+import { DeployMenu } from "./deploy-menu";
 
 interface MessageInputProps {
   onSend: (content: string) => void;
   disabled?: boolean;
   workspace?: string;
+  conversationId?: string;
+  sessionId?: string;
 }
 
 interface AgentOption {
@@ -17,6 +20,7 @@ interface AgentOption {
   name: string;
   type: string;
   avatarColor: string;
+  role?: string;
 }
 
 interface AttachedFile {
@@ -24,7 +28,7 @@ interface AttachedFile {
   content: string;
 }
 
-export function MessageInput({ onSend, disabled, workspace }: MessageInputProps) {
+export function MessageInput({ onSend, disabled, workspace, conversationId, sessionId }: MessageInputProps) {
   const [value, setValue] = useState("");
   const [referencedFiles, setReferencedFiles] = useState<string[]>([]);
   const [mentionedAgents, setMentionedAgents] = useState<AgentOption[]>([]);
@@ -281,7 +285,7 @@ export function MessageInput({ onSend, disabled, workspace }: MessageInputProps)
             {mentionedAgents.map((agent) => (
               <span key={agent.id} className="inline-flex items-center gap-1 rounded-md bg-purple-50 px-2 py-0.5 text-[11px] text-purple-700">
                 {(() => {
-                  const logo = getAgentLogo(agent.type);
+                  const logo = getAgentAvatar(agent.role) || getAgentLogo(agent.type);
                   return logo ? (
                     <img src={logo} alt="" className="h-3 w-3 rounded-full" />
                   ) : (
@@ -401,6 +405,14 @@ export function MessageInput({ onSend, disabled, workspace }: MessageInputProps)
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5" />
                     </svg>
                   </button>
+                )}
+                {/* Deploy button */}
+                {workspace && conversationId && (
+                  <DeployMenu
+                    conversationId={conversationId}
+                    workspace={workspace}
+                    sessionId={sessionId}
+                  />
                 )}
               </div>
               {/* Send button */}

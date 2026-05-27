@@ -1,8 +1,14 @@
 import { Hono } from "hono";
 import { randomUUID } from "node:crypto";
+import { writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { CreateAgentRequest, UpdateAgentRequest, validateMcpServers, validateSkills } from "@argo/shared";
 import { getQueries } from "../db/init.js";
 import type { Env } from "./types.js";
+
+const __dirname = resolve(fileURLToPath(import.meta.url), "../../../..");
+const AVATAR_DIR = resolve(__dirname, "../ui/public/avatars/custom");
 
 export const agentRoutes = new Hono<Env>();
 
@@ -27,7 +33,11 @@ agentRoutes.get("/", (c) => {
       name: a.name,
       type: a.type,
       avatarColor: a.avatar_color,
+      avatarUrl: a.avatar_url || undefined,
       systemPrompt: a.system_prompt,
+      role: a.role,
+      model: a.model,
+      disallowedTools: a.disallowed_tools ? JSON.parse(a.disallowed_tools) : undefined,
       capabilities: JSON.parse(a.capabilities),
       config: JSON.parse(a.config),
     })),
@@ -41,7 +51,7 @@ agentRoutes.post("/", async (c) => {
     return c.json({ error: { code: "VALIDATION_ERROR", message: "Invalid input", details: parsed.error.issues } }, 400);
   }
 
-  const { name, avatarColor, systemPrompt, capabilities, config } = parsed.data;
+  const { name, avatarColor, systemPrompt, role, model, disallowedTools, capabilities, config } = parsed.data;
 
   const configErrors = validateAgentConfig(config as Record<string, unknown> | undefined);
   if (configErrors.length > 0) {
@@ -50,9 +60,9 @@ agentRoutes.post("/", async (c) => {
 
   const id = randomUUID();
   const queries = getQueries();
-  queries.createAgent(id, name, "custom", avatarColor, capabilities || [], config || {}, systemPrompt);
+  queries.createAgent(id, name, "custom", avatarColor, capabilities || [], config || {}, systemPrompt, role, model, disallowedTools);
 
-  return c.json({ id, name, type: "custom", avatarColor, systemPrompt, capabilities: capabilities || [], config: config || {} }, 201);
+  return c.json({ id, name, type: "custom", avatarColor, systemPrompt, role, model, disallowedTools, capabilities: capabilities || [], config: config || {} }, 201);
 });
 
 agentRoutes.put("/:id", async (c) => {
@@ -60,7 +70,6 @@ agentRoutes.put("/:id", async (c) => {
   const queries = getQueries();
   const existing = queries.getAgent(id);
   if (!existing) return c.json({ error: { code: "NOT_FOUND", message: "Agent not found" } }, 404);
-  if (existing.type !== "custom") return c.json({ error: { code: "FORBIDDEN", message: "Cannot edit built-in agents" } }, 403);
 
   const body = await c.req.json();
   const parsed = UpdateAgentRequest.safeParse(body);
@@ -86,4 +95,31 @@ agentRoutes.delete("/:id", (c) => {
 
   queries.deleteAgent(id);
   return c.json({ success: true });
+});
+
+agentRoutes.post("/:id/avatar", async (c) => {
+  const { id } = c.req.param();
+  const queries = getQueries();
+  const existing = queries.getAgent(id);
+  if (!existing) return c.json({ error: { code: "NOT_FOUND", message: "Agent not found" } }, 404);
+
+  const body = await c.req.parseBody();
+  const file = body["file"];
+  if (!file || !(file instanceof File)) {
+    return c.json({ error: { code: "VALIDATION_ERROR", message: "No file provided" } }, 400);
+  }
+
+  const ext = file.name.split(".").pop() || "png";
+  const filename = `${id}.${ext}`;
+  const avatarUrl = `/avatars/custom/${filename}`;
+
+  if (!existsSync(AVATAR_DIR)) {
+    mkdirSync(AVATAR_DIR, { recursive: true });
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  writeFileSync(resolve(AVATAR_DIR, filename), buffer);
+
+  queries.updateAgentAvatarUrl(id, avatarUrl);
+  return c.json({ avatarUrl });
 });

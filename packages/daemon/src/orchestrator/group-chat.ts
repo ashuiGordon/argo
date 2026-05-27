@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
-import type { NormalizedEvent } from "@argo/shared";
+import type { NormalizedEvent, TeamPreset } from "@argo/shared";
 import type { AdapterConfig, AdapterCallbacks, ManagedRuntime } from "../adapters/types.js";
 import { EventPersistence } from "../event-bus/persist.js";
 import { getQueries } from "../db/init.js";
 import { Semaphore } from "./semaphore.js";
 import { MAX_PARALLEL_TASKS } from "@argo/shared";
-import { MODERATOR_SYSTEM_PROMPT, PARTICIPANT_REQUEST_PROMPT, SYNTHESIS_PROMPT } from "./group-chat-prompts.js";
+import { MODERATOR_SYSTEM_PROMPT, PRESET_MODERATOR_ADDON, PARTICIPANT_REQUEST_PROMPT, SYNTHESIS_PROMPT } from "./group-chat-prompts.js";
 import { getWorktreeManager, type WorktreeInfo } from "../worktree/manager.js";
 import { isGitRepo } from "../worktree/utils.js";
 
@@ -32,6 +32,7 @@ interface GroupChatState {
   chatLog: ChatLogEntry[];
   maxRounds: number;
   currentRound: number;
+  teamPreset?: TeamPreset;
 }
 
 const MAX_ROUNDS = 3;
@@ -44,6 +45,7 @@ export async function runGroupChat(
   agents: AgentWithConfig[],
   moderator: AgentWithConfig,
   workspace: string,
+  teamPreset?: TeamPreset,
 ): Promise<void> {
   const persistence = new EventPersistence(getQueries());
 
@@ -56,6 +58,7 @@ export async function runGroupChat(
     chatLog: [],
     maxRounds: MAX_ROUNDS,
     currentRound: 0,
+    teamPreset,
   };
 
   // Load recent history from persisted events
@@ -401,9 +404,28 @@ function buildModeratorPrompt(state: GroupChatState): string {
     .map((e) => `[${e.from}]: ${e.content.slice(0, 500)}`)
     .join("\n");
 
-  return MODERATOR_SYSTEM_PROMPT
+  let prompt = MODERATOR_SYSTEM_PROMPT
     .replace("{{PARTICIPANT_LIST}}", participantList)
     .replace("{{HISTORY}}", history);
+
+  if (state.teamPreset) {
+    const pipelineSteps = state.teamPreset.pipeline
+      .map((s, i) => `${i + 1}. ${s.name.toUpperCase()} → @${state.agents.find(a => {
+        const searchText = `${a.name} ${a.system_prompt || ""}`.toLowerCase();
+        return searchText.includes(s.assignTo);
+      })?.name.replace(/\s+/g, "-") || s.assignTo}: ${s.description}${s.canSkip ? " (skippable)" : ""}`)
+      .join("\n");
+
+    const presetAddon = PRESET_MODERATOR_ADDON
+      .replace("{{PRESET_NAME}}", state.teamPreset.name)
+      .replace("{{PRESET_DESCRIPTION}}", state.teamPreset.description)
+      .replace("{{PIPELINE_STEPS}}", pipelineSteps)
+      .replace("{{MODERATOR_HINT}}", state.teamPreset.moderatorHint);
+
+    prompt += "\n" + presetAddon;
+  }
+
+  return prompt;
 }
 
 function buildParticipantPrompt(agentName: string, state: GroupChatState, task: string): string {

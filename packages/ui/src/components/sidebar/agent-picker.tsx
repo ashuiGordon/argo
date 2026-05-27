@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../../services/api-client";
-import { getAgentLogo } from "../../lib/agent-logos";
+import { getAgentLogo, getAgentAvatar } from "../../lib/agent-logos";
 import { FolderPicker } from "../shared/folder-picker";
 
 interface Agent {
@@ -8,6 +8,7 @@ interface Agent {
   name: string;
   type: string;
   avatarColor: string;
+  role?: string;
   capabilities: string[];
 }
 
@@ -60,7 +61,7 @@ export function AgentPicker({ onSelect, onClose }: AgentPickerProps) {
               }`}
             >
               {(() => {
-                const logo = getAgentLogo(agent.type);
+                const logo = getAgentAvatar(agent.role) || getAgentLogo(agent.type);
                 return logo ? (
                   <img src={logo} alt={agent.name} className="h-10 w-10 rounded-full object-cover" />
                 ) : (

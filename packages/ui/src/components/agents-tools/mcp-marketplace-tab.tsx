@@ -2,13 +2,14 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { featuredMcpServers, type FeaturedMcpServer } from "../../data/curated-mcp-servers";
 import type { RegistryServer, RegistryListResponse, RegistryPackage } from "./registry-types";
 import { api } from "../../services/api-client";
-import { getAgentLogo } from "../../lib/agent-logos";
+import { getAgentLogo, getAgentAvatar } from "../../lib/agent-logos";
 
 interface AgentOption {
   id: string;
   name: string;
   type: string;
   avatarColor: string;
+  role?: string;
   config?: {
     mcpServers?: Array<{ name: string; command: string; args?: string[]; env?: Record<string, string> }>;
   };
@@ -371,7 +372,7 @@ function InstallModal({
               className="flex w-full items-center gap-3 rounded-[var(--radius-sm)] border border-gray-200 px-3 py-2.5 text-left transition-colors hover:bg-gray-50 cursor-pointer"
             >
               {(() => {
-                const logo = getAgentLogo(agent.type);
+                const logo = getAgentAvatar(agent.role) || getAgentLogo(agent.type);
                 return logo ? (
                   <img src={logo} alt="" className="h-6 w-6 rounded-full" />
                 ) : (

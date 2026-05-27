@@ -28,7 +28,11 @@ export function initializeSchema(db: Database.Database): void {
       name TEXT NOT NULL,
       type TEXT NOT NULL CHECK(type IN ('claude_code', 'codex', 'custom')),
       avatar_color TEXT NOT NULL DEFAULT '#6B7280',
+      avatar_url TEXT,
       system_prompt TEXT,
+      role TEXT,
+      model TEXT,
+      disallowed_tools TEXT,
       capabilities TEXT NOT NULL DEFAULT '[]',
       config TEXT NOT NULL DEFAULT '{}',
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -38,9 +42,9 @@ export function initializeSchema(db: Database.Database): void {
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       title TEXT NOT NULL,
-      mode TEXT NOT NULL CHECK(mode IN ('single', 'group', 'argo')) DEFAULT 'single',
+      mode TEXT NOT NULL CHECK(mode IN ('single', 'group')) DEFAULT 'single',
       workspace TEXT,
-      argo_state TEXT,
+      team_preset TEXT,
       pinned INTEGER NOT NULL DEFAULT 0,
       archived INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -142,6 +146,22 @@ export function initializeSchema(db: Database.Database): void {
     );
     CREATE INDEX IF NOT EXISTS idx_memories_conv_type ON memories(conversation_id, type);
     CREATE INDEX IF NOT EXISTS idx_memories_created ON memories(created_at DESC);
+
+    CREATE TABLE IF NOT EXISTS deployments (
+      id TEXT PRIMARY KEY,
+      conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+      session_id TEXT,
+      type TEXT NOT NULL CHECK(type IN ('preview', 'static', 'container', 'package')),
+      status TEXT NOT NULL CHECK(status IN ('pending', 'building', 'deployed', 'failed', 'cancelled')) DEFAULT 'pending',
+      target TEXT NOT NULL,
+      url TEXT,
+      workspace TEXT NOT NULL,
+      metadata TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_deployments_conversation ON deployments(conversation_id);
+    CREATE INDEX IF NOT EXISTS idx_deployments_status ON deployments(status);
   `);
 
   // Migrations for existing databases
@@ -152,8 +172,22 @@ export function initializeSchema(db: Database.Database): void {
   if (!cols.some((c) => c.name === "moderator_agent_id")) {
     db.exec("ALTER TABLE conversations ADD COLUMN moderator_agent_id TEXT REFERENCES agents(id)");
   }
-  if (!cols.some((c) => c.name === "argo_state")) {
-    db.exec("ALTER TABLE conversations ADD COLUMN argo_state TEXT");
+  if (!cols.some((c) => c.name === "team_preset")) {
+    db.exec("ALTER TABLE conversations ADD COLUMN team_preset TEXT");
+  }
+
+  const agentCols = db.prepare("PRAGMA table_info(agents)").all() as Array<{ name: string }>;
+  if (!agentCols.some((c) => c.name === "role")) {
+    db.exec("ALTER TABLE agents ADD COLUMN role TEXT");
+  }
+  if (!agentCols.some((c) => c.name === "model")) {
+    db.exec("ALTER TABLE agents ADD COLUMN model TEXT");
+  }
+  if (!agentCols.some((c) => c.name === "disallowed_tools")) {
+    db.exec("ALTER TABLE agents ADD COLUMN disallowed_tools TEXT");
+  }
+  if (!agentCols.some((c) => c.name === "avatar_url")) {
+    db.exec("ALTER TABLE agents ADD COLUMN avatar_url TEXT");
   }
 }
 

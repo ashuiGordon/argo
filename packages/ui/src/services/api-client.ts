@@ -52,10 +52,10 @@ export const api = {
       if (search) params.set("search", search);
       return request<{ conversations: unknown[]; total: number }>(`/conversations?${params}`);
     },
-    create: (mode: string, agentIds: string[], title?: string, workspace?: string) =>
+    create: (mode: string, agentIds: string[], title?: string, workspace?: string, teamPresetId?: string) =>
       request<{ id: string; title: string; mode: string; agents: unknown[] }>("/conversations", {
         method: "POST",
-        body: JSON.stringify({ mode, agentIds, title, workspace }),
+        body: JSON.stringify({ mode, agentIds, title, workspace, teamPresetId }),
       }),
     update: (id: string, data: { title?: string; pinned?: boolean; archived?: boolean }) =>
       request(`/conversations/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
@@ -76,11 +76,23 @@ export const api = {
   },
   agents: {
     list: () => request<{ agents: unknown[] }>("/agents"),
-    create: (data: { name: string; avatarColor: string; systemPrompt?: string; capabilities?: string[] }) =>
+    create: (data: { name: string; avatarColor: string; systemPrompt?: string; role?: string; model?: string; disallowedTools?: string[]; capabilities?: string[]; config?: Record<string, unknown> }) =>
       request<{ id: string }>("/agents", { method: "POST", body: JSON.stringify(data) }),
-    update: (id: string, data: { name?: string; avatarColor?: string; systemPrompt?: string; capabilities?: string[] }) =>
+    update: (id: string, data: { name?: string; avatarColor?: string; systemPrompt?: string; role?: string; model?: string; disallowedTools?: string[]; capabilities?: string[]; config?: Record<string, unknown> }) =>
       request(`/agents/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     delete: (id: string) => request(`/agents/${id}`, { method: "DELETE" }),
+    uploadAvatar: async (id: string, file: File): Promise<{ avatarUrl: string }> => {
+      const token = useAuthStore.getState().token;
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch(`${BASE_URL}/agents/${id}/avatar`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      if (!res.ok) throw new ApiError(res.status, "Upload failed");
+      return res.json();
+    },
   },
   approvals: {
     decide: (id: string, decision: "approve" | "deny") =>
@@ -127,5 +139,35 @@ export const api = {
         git: Array<{ path: string; branch: string; head: string }>;
       }>(`/system/worktrees${params}`);
     },
+  },
+  deployments: {
+    create: (data: {
+      conversationId: string;
+      type: "preview" | "static" | "container" | "package";
+      target: string;
+      workspace: string;
+      buildCommand?: string;
+      sessionId?: string;
+    }) =>
+      request<{ id: string; status: string }>("/deployments", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    get: (id: string) =>
+      request<{ deployment: {
+        id: string; conversationId: string; type: string; status: string;
+        target: string; url?: string; workspace: string; metadata?: Record<string, unknown>;
+        createdAt: string; updatedAt: string;
+      } }>(`/deployments/${id}`),
+    list: (conversationId: string) =>
+      request<{ deployments: Array<{
+        id: string; conversationId: string; type: string; status: string;
+        target: string; url?: string; workspace: string; metadata?: Record<string, unknown>;
+        createdAt: string; updatedAt: string;
+      }> }>(`/deployments?conversation_id=${conversationId}`),
+    cancel: (id: string) =>
+      request<{ ok: boolean }>(`/deployments/${id}`, { method: "DELETE" }),
+    downloadUrl: (deploymentId: string, filename: string) =>
+      `${BASE_URL}/deployments/download/${deploymentId}/${filename}`,
   },
 };

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useConversationsStore } from "../../stores/conversations";
-import { getAgentLogo } from "../../lib/agent-logos";
+import { getAgentLogo, getAgentAvatar } from "../../lib/agent-logos";
 import type { ConversationWithDetails } from "@argo/shared";
 
 interface SearchOverlayProps {
@@ -102,7 +102,7 @@ function SearchResultItem({
     >
       {/* Agent avatar */}
       {(() => {
-        const logo = agent ? getAgentLogo(agent.type) : null;
+        const logo = agent ? (getAgentAvatar(agent.role) || getAgentLogo(agent.type)) : null;
         return logo ? (
           <img src={logo} alt="" className="h-5 w-5 rounded-full shrink-0" />
         ) : agent ? (

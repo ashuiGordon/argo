@@ -11,7 +11,7 @@ import { FullscreenEditor } from "../components/editor/fullscreen-editor";
 import { TaskDag } from "../components/orchestrator/task-dag";
 import { NewChatComposer } from "../components/chat/new-chat-composer";
 import { AgentsToolsPanel } from "../components/agents-tools/agents-tools-panel";
-import { ArgoProgressBar } from "../components/chat/argo-progress-bar";
+import { TeamProgressBar } from "../components/chat/team-progress-bar";
 import { api } from "../services/api-client";
 import { wsClient } from "../services/ws-client";
 import { initWsHandler } from "../services/ws-handler";
@@ -29,10 +29,9 @@ export function ChatPage() {
 
   const activeConversation = conversations.find((c) => c.id === activeConversationId);
   const isGroupChat = activeConversation?.mode === "group";
-  const isArgoMode = activeConversation?.mode === "argo";
   const workspace = activeConversation?.workspace;
   const currentTasks = activeConversationId ? orchestratorTasks.get(activeConversationId) || [] : [];
-  const argoState = activeConversationId ? useConversationsStore.getState().argoStates?.get(activeConversationId) : undefined;
+  const teamPhase = activeConversationId ? useConversationsStore.getState().teamPhases.get(activeConversationId) : undefined;
 
   useEffect(() => {
     wsClient.connect();
@@ -66,13 +65,12 @@ export function ChatPage() {
         const p = event.payload as { taskId: string; status: string; title?: string; assignee?: string; error?: string };
         orchStore.updateTask(conversationId, p.taskId, p.status as never, p.error, p.title, p.assignee);
       }
-      if (event.payload.type === "argo_phase_change") {
-        const p = event.payload as { phase: string; previousPhase: string };
-        convStore.updateArgoState(conversationId, {
-          phase: p.phase as import("@argo/shared").ArgoPhase,
-          featureDir: convStore.argoStates?.get(conversationId)?.featureDir || "",
-          clarifyDone: p.phase !== "clarify",
-          artifacts: convStore.argoStates?.get(conversationId)?.artifacts || {},
+      if (event.payload.type === "team_phase_change") {
+        const p = event.payload as { phase: string; previousPhase?: string; presetId?: string };
+        convStore.updateTeamPhase(conversationId, {
+          phase: p.phase,
+          previousPhase: p.previousPhase,
+          presetId: p.presetId,
         });
       }
     }
@@ -134,14 +132,15 @@ export function ChatPage() {
               </div>
             )}
             {isGroupChat && currentTasks.length > 0 && <TaskDag tasks={currentTasks} />}
-            {isArgoMode && argoState && (
-              <ArgoProgressBar
-                phase={argoState.phase}
-                implementProgress={argoState.implementProgress}
+            {isGroupChat && teamPhase && (
+              <TeamProgressBar
+                phase={teamPhase.phase}
+                previousPhase={teamPhase.previousPhase}
+                presetId={teamPhase.presetId}
               />
             )}
             <MessageList events={currentEvents} isStreaming={false} conversationId={activeConversationId} />
-            <MessageInput onSend={handleSend} workspace={workspace || undefined} />
+            <MessageInput onSend={handleSend} workspace={workspace || undefined} conversationId={activeConversationId} />
           </>
         ) : (
           <NewChatComposer />

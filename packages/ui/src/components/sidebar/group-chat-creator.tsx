@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { api } from "../../services/api-client";
-import { getAgentLogo } from "../../lib/agent-logos";
+import { getAgentLogo, getAgentAvatar } from "../../lib/agent-logos";
 
 interface Agent {
   id: string;
   name: string;
   type: string;
   avatarColor: string;
+  role?: string;
 }
 
 interface GroupChatCreatorProps {
@@ -44,7 +45,7 @@ export function GroupChatCreator({ onClose, onCreate }: GroupChatCreatorProps) {
               }`}
             >
               {(() => {
-                const logo = getAgentLogo(agent.type);
+                const logo = getAgentAvatar(agent.role) || getAgentLogo(agent.type);
                 return logo ? (
                   <img src={logo} alt={agent.name} className="h-8 w-8 rounded-full object-cover" />
                 ) : (

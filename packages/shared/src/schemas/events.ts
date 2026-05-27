@@ -154,10 +154,22 @@ export const WorktreeMergedEvent = BaseEvent.extend({
   conflicts: z.array(z.string()).optional(),
 });
 
-export const ArgoPhaseChangeEvent = BaseEvent.extend({
-  type: z.literal("argo_phase_change"),
+export const TeamPhaseChangeEvent = BaseEvent.extend({
+  type: z.literal("team_phase_change"),
   phase: z.string(),
   previousPhase: z.string(),
+  presetId: z.string().optional(),
+});
+
+export const DeployStatusEvent = BaseEvent.extend({
+  type: z.literal("deploy_status"),
+  deploymentId: z.string().uuid(),
+  deployType: z.enum(["preview", "static", "container", "package"]),
+  status: z.enum(["pending", "building", "deployed", "failed", "cancelled"]),
+  target: z.string(),
+  url: z.string().optional(),
+  error: z.string().optional(),
+  logs: z.array(z.string()).optional(),
 });
 
 export const NormalizedEvent = z.discriminatedUnion("type", [
@@ -177,7 +189,8 @@ export const NormalizedEvent = z.discriminatedUnion("type", [
   GroupChatStateEvent,
   WorktreeCreatedEvent,
   WorktreeMergedEvent,
-  ArgoPhaseChangeEvent,
+  TeamPhaseChangeEvent,
+  DeployStatusEvent,
 ]);
 export type NormalizedEvent = z.infer<typeof NormalizedEvent>;
 
@@ -197,4 +210,5 @@ export type HookEvent = z.infer<typeof HookEvent>;
 export type GroupChatStateEvent = z.infer<typeof GroupChatStateEvent>;
 export type WorktreeCreatedEvent = z.infer<typeof WorktreeCreatedEvent>;
 export type WorktreeMergedEvent = z.infer<typeof WorktreeMergedEvent>;
-export type ArgoPhaseChangeEvent = z.infer<typeof ArgoPhaseChangeEvent>;
+export type TeamPhaseChangeEvent = z.infer<typeof TeamPhaseChangeEvent>;
+export type DeployStatusEvent = z.infer<typeof DeployStatusEvent>;

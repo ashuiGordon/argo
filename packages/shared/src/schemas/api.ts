@@ -22,9 +22,10 @@ export const AuthResponse = z.object({
 export type AuthResponse = z.infer<typeof AuthResponse>;
 
 export const CreateConversationRequest = z.object({
-  mode: z.enum(["single", "group", "argo"]),
+  mode: z.enum(["single", "group"]),
   agentIds: z.array(z.string().uuid()).min(1),
   moderatorAgentId: z.string().uuid().optional(),
+  teamPresetId: z.string().optional(),
   title: z.string().optional(),
   workspace: z.string().min(1).optional(),
 });
@@ -77,6 +78,9 @@ export const CreateAgentRequest = z.object({
   name: z.string().min(1).max(100),
   avatarColor: z.string().regex(/^#[0-9a-fA-F]{6}$/),
   systemPrompt: z.string().max(10000).optional(),
+  role: z.enum(["architect", "planner", "executor", "reviewer", "debugger", "tester", "designer", "ops"]).optional(),
+  model: z.enum(["opus", "sonnet", "haiku"]).optional(),
+  disallowedTools: z.array(z.string()).optional(),
   capabilities: z.array(z.string()).optional(),
   config: AgentConfigSchema.optional(),
 });
@@ -86,6 +90,9 @@ export const UpdateAgentRequest = z.object({
   name: z.string().min(1).max(100).optional(),
   avatarColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   systemPrompt: z.string().max(10000).optional(),
+  role: z.enum(["architect", "planner", "executor", "reviewer", "debugger", "tester", "designer", "ops"]).nullable().optional(),
+  model: z.enum(["opus", "sonnet", "haiku"]).nullable().optional(),
+  disallowedTools: z.array(z.string()).optional(),
   capabilities: z.array(z.string()).optional(),
   config: AgentConfigSchema.optional(),
 });
@@ -103,6 +110,16 @@ export const EventsQuery = z.object({
   limit: z.coerce.number().int().min(1).max(1000).default(100),
 });
 export type EventsQuery = z.infer<typeof EventsQuery>;
+
+export const CreateDeploymentRequest = z.object({
+  conversationId: z.string().uuid(),
+  type: z.enum(["preview", "static", "container", "package"]),
+  target: z.enum(["local", "vercel", "netlify", "docker", "fly", "zip", "tar"]),
+  workspace: z.string().min(1),
+  buildCommand: z.string().optional(),
+  sessionId: z.string().uuid().optional(),
+});
+export type CreateDeploymentRequest = z.infer<typeof CreateDeploymentRequest>;
 
 export const ApiError = z.object({
   error: z.object({

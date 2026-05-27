@@ -1,4 +1,4 @@
-import { getAgentLogo } from "../../lib/agent-logos";
+import { AgentAvatarGroup } from "../shared/agent-avatar-group";
 
 interface ConversationItemProps {
   id: string;
@@ -8,7 +8,7 @@ interface ConversationItemProps {
   pinned: boolean;
   unreadCount: number;
   active: boolean;
-  agents: Array<{ name: string; type: string; avatarColor: string }>;
+  agents: Array<{ name: string; type: string; avatarColor: string; avatarUrl?: string; role?: string }>;
   onClick: () => void;
 }
 
@@ -21,7 +21,6 @@ export function ConversationItem({
   agents,
   onClick,
 }: ConversationItemProps) {
-  const agent = agents[0];
   const timeStr = new Date(updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
   return (
@@ -33,21 +32,7 @@ export function ConversationItem({
           : "hover:bg-gray-100/60"
       }`}
     >
-      {agent ? (
-        (() => {
-          const logo = getAgentLogo(agent.type);
-          return logo ? (
-            <img src={logo} alt={agent.name} className="h-8 w-8 shrink-0 rounded-full object-cover" />
-          ) : (
-            <div
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-600 text-white"
-              style={{ backgroundColor: agent.avatarColor }}
-            >
-              {agent.name[0]}
-            </div>
-          );
-        })()
-      ) : null}
+      <AgentAvatarGroup agents={agents} size={32} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <span className="truncate text-[13px] font-500 text-gray-900">

@@ -1,13 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { api } from "../../services/api-client";
 import { useConversationsStore } from "../../stores/conversations";
-import { getAgentLogo } from "../../lib/agent-logos";
+import { getAgentLogo, getAgentAvatar, getAgentDisplayAvatar } from "../../lib/agent-logos";
+import { AgentAvatar } from "../shared/agent-avatar";
 
 interface AgentOption {
   id: string;
   name: string;
   type: string;
   avatarColor: string;
+  avatarUrl?: string;
+  role?: string;
 }
 
 export function NewChatComposer() {
@@ -17,7 +20,8 @@ export function NewChatComposer() {
   const [selectedAgentIds, setSelectedAgentIds] = useState<string[]>([]);
   const [showAgentDropdown, setShowAgentDropdown] = useState(false);
   const [sending, setSending] = useState(false);
-  const [mode, setMode] = useState<"chat" | "argo">("chat");
+  const [mode, setMode] = useState<"chat" | "team">("chat");
+  const [teamMode, setTeamMode] = useState<"auto" | "custom">("auto");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const setActiveConversation = useConversationsStore((s) => s.setActiveConversation);
@@ -27,7 +31,6 @@ export function NewChatComposer() {
     api.agents.list().then((res) => {
       const list = res.agents as AgentOption[];
       setAgents(list);
-      if (list.length === 1) setSelectedAgentIds([list[0].id]);
     });
   }, []);
 
@@ -50,6 +53,11 @@ export function NewChatComposer() {
     }
   }, []);
 
+  function selectSingleAgent(id: string) {
+    setSelectedAgentIds([id]);
+    setShowAgentDropdown(false);
+  }
+
   function toggleAgent(id: string) {
     setSelectedAgentIds((prev) =>
       prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id],
@@ -64,30 +72,34 @@ export function NewChatComposer() {
     const trimmed = message.trim();
     if (!trimmed || !workspace || sending) return;
 
-    const agentIdsToUse = mode === "argo"
-      ? agents.map((a) => a.id)
-      : selectedAgentIds;
+    let agentIdsToUse: string[];
+    let teamPresetId: string | undefined;
+
+    if (mode === "team") {
+      if (teamMode === "auto") {
+        agentIdsToUse = agents.map((a) => a.id);
+        teamPresetId = "auto";
+      } else {
+        agentIdsToUse = selectedAgentIds;
+      }
+    } else {
+      agentIdsToUse = selectedAgentIds;
+    }
 
     if (agentIdsToUse.length === 0) return;
 
     setSending(true);
     try {
-      let convMode: "single" | "group" | "argo";
-      if (mode === "argo") {
-        convMode = "argo";
-      } else {
-        convMode = agentIdsToUse.length === 1 ? "single" : "group";
-      }
-      const res = await api.conversations.create(convMode, agentIdsToUse, undefined, workspace);
+      const convMode: "single" | "group" = mode === "chat" ? "single" : "group";
+      const res = await api.conversations.create(convMode, agentIdsToUse, undefined, workspace, teamPresetId);
 
-      // Reload conversations list
       const convRes = await api.conversations.list(1, 50);
       loadConversations(convRes.conversations as never);
 
       setActiveConversation(res.id);
       await api.messages.send(res.id, trimmed, workspace);
     } catch {
-      // handle error silently — conversation view will show state
+      // handle error silently
     } finally {
       setSending(false);
     }
@@ -110,7 +122,15 @@ export function NewChatComposer() {
 
   const selectedAgents = agents.filter((a) => selectedAgentIds.includes(a.id));
   const unselectedAgents = agents.filter((a) => !selectedAgentIds.includes(a.id));
-  const canSend = message.trim() && (mode === "argo" ? agents.length > 0 : selectedAgentIds.length > 0) && workspace && !sending;
+
+  const canSend = (() => {
+    if (!message.trim() || !workspace || sending) return false;
+    if (mode === "team") {
+      return teamMode === "auto" ? agents.length > 0 : selectedAgentIds.length > 1;
+    }
+    return selectedAgentIds.length === 1;
+  })();
+
   const workspaceName = workspace ? workspace.split("/").pop() : "";
 
   return (
@@ -127,7 +147,7 @@ export function NewChatComposer() {
         <div className="mb-6 flex justify-center">
           <div className="inline-flex rounded-[var(--radius-md)] border border-gray-200 bg-gray-50 p-0.5">
             <button
-              onClick={() => setMode("chat")}
+              onClick={() => { setMode("chat"); setSelectedAgentIds([]); }}
               className={`rounded-[var(--radius-sm)] px-4 py-1.5 text-[13px] font-medium transition-all cursor-pointer ${
                 mode === "chat"
                   ? "bg-white text-gray-900 shadow-sm"
@@ -137,14 +157,14 @@ export function NewChatComposer() {
               Chat
             </button>
             <button
-              onClick={() => setMode("argo")}
+              onClick={() => { setMode("team"); setSelectedAgentIds([]); }}
               className={`rounded-[var(--radius-sm)] px-4 py-1.5 text-[13px] font-medium transition-all cursor-pointer ${
-                mode === "argo"
+                mode === "team"
                   ? "bg-white text-blue-600 shadow-sm"
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              Argo
+              Team
             </button>
           </div>
         </div>
@@ -168,120 +188,187 @@ export function NewChatComposer() {
           {/* Toolbar */}
           <div className="flex items-center justify-between border-t border-gray-100 px-4 py-2.5">
             <div className="flex items-center gap-2 flex-wrap">
-              {mode === "argo" ? (
-                <span className="flex items-center gap-1.5 rounded-[var(--radius-pill)] border border-blue-200 bg-blue-50 px-2.5 py-1 text-[12px] text-blue-600 font-medium">
-                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-                  </svg>
-                  All agents ({agents.length})
-                </span>
+              {mode === "team" ? (
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Auto / Custom toggle */}
+                  <div className="inline-flex rounded-[var(--radius-pill)] border border-gray-200 bg-gray-50 p-0.5">
+                    <button
+                      onClick={() => { setTeamMode("auto"); setSelectedAgentIds([]); }}
+                      className={`rounded-[var(--radius-pill)] px-2.5 py-0.5 text-[11px] font-medium transition-all cursor-pointer ${
+                        teamMode === "auto"
+                          ? "bg-white text-blue-600 shadow-sm"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      Auto
+                    </button>
+                    <button
+                      onClick={() => { setTeamMode("custom"); setSelectedAgentIds([]); }}
+                      className={`rounded-[var(--radius-pill)] px-2.5 py-0.5 text-[11px] font-medium transition-all cursor-pointer ${
+                        teamMode === "custom"
+                          ? "bg-white text-blue-600 shadow-sm"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      Custom
+                    </button>
+                  </div>
+
+                  {teamMode === "auto" ? (
+                    <span className="text-[12px] text-gray-400">
+                      All {agents.length} agents — Moderator decides
+                    </span>
+                  ) : (
+                    <>
+                      {/* Selected agent chips */}
+                      {selectedAgents.map((agent) => (
+                        <button
+                          key={agent.id}
+                          onClick={() => removeAgent(agent.id)}
+                          className="flex items-center gap-1.5 rounded-[var(--radius-pill)] border border-gray-200 bg-gray-50 pl-1 pr-2.5 py-1 text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                          title={`Remove ${agent.name}`}
+                        >
+                          {(() => {
+                            const logo = getAgentAvatar(agent.role) || getAgentLogo(agent.type);
+                            return logo ? (
+                              <img src={logo} alt="" className="h-4 w-4 rounded-full" />
+                            ) : (
+                              <div
+                                className="flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-white"
+                                style={{ backgroundColor: agent.avatarColor }}
+                              >
+                                {agent.name[0]}
+                              </div>
+                            );
+                          })()}
+                          <span className="font-medium">{agent.name}</span>
+                          <svg className="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      ))}
+
+                      {/* Add agent button + dropdown */}
+                      <div className="relative" ref={dropdownRef}>
+                        <button
+                          onClick={() => setShowAgentDropdown(!showAgentDropdown)}
+                          className="flex items-center gap-1 rounded-[var(--radius-pill)] border border-dashed border-gray-300 px-2.5 py-1 text-[12px] text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors cursor-pointer"
+                        >
+                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                          </svg>
+                          {selectedAgentIds.length === 0 ? "Select agents" : "Add"}
+                        </button>
+
+                        {showAgentDropdown && (
+                          <div className="absolute bottom-full left-0 mb-2 w-56 rounded-[var(--radius-md)] border border-gray-200 bg-white py-1 shadow-lg z-50">
+                            {unselectedAgents.map((agent) => (
+                              <button
+                                key={agent.id}
+                                onClick={() => {
+                                  toggleAgent(agent.id);
+                                  if (unselectedAgents.length <= 1) setShowAgentDropdown(false);
+                                }}
+                                className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] text-gray-700 hover:bg-gray-50 cursor-pointer"
+                              >
+                                {(() => {
+                                  const logo = getAgentAvatar(agent.role) || getAgentLogo(agent.type);
+                                  return logo ? (
+                                    <img src={logo} alt="" className="h-5 w-5 rounded-full" />
+                                  ) : (
+                                    <div
+                                      className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                                      style={{ backgroundColor: agent.avatarColor }}
+                                    >
+                                      {agent.name[0]}
+                                    </div>
+                                  );
+                                })()}
+                                {agent.name}
+                              </button>
+                            ))}
+                            {unselectedAgents.length === 0 && (
+                              <p className="px-3 py-2 text-[12px] text-gray-400">All agents selected</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
               ) : (
                 <>
-                  {/* Selected agent chips */}
-                  {selectedAgents.map((agent) => (
-                <button
-                  key={agent.id}
-                  onClick={() => removeAgent(agent.id)}
-                  className="flex items-center gap-1.5 rounded-[var(--radius-pill)] border border-gray-200 bg-gray-50 pl-1 pr-2.5 py-1 text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
-                  title={`Remove ${agent.name}`}
-                >
-                  {(() => {
-                    const logo = getAgentLogo(agent.type);
-                    return logo ? (
-                      <img src={logo} alt="" className="h-4 w-4 rounded-full" />
-                    ) : (
-                      <div
-                        className="flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-white"
-                        style={{ backgroundColor: agent.avatarColor }}
-                      >
-                        {agent.name[0]}
-                      </div>
-                    );
-                  })()}
-                  <span className="font-medium">{agent.name}</span>
-                  <svg className="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              ))}
+                  {/* Chat mode: single agent selector */}
+                  {selectedAgents.length === 1 && (
+                    <button
+                      onClick={() => { setSelectedAgentIds([]); setShowAgentDropdown(true); }}
+                      className="flex items-center gap-1.5 rounded-[var(--radius-pill)] border border-gray-200 bg-gray-50 pl-1 pr-2.5 py-1 text-[12px] text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                    >
+                      {(() => {
+                        const agent = selectedAgents[0];
+                        const logo = getAgentAvatar(agent.role) || getAgentLogo(agent.type);
+                        return logo ? (
+                          <img src={logo} alt="" className="h-4 w-4 rounded-full" />
+                        ) : (
+                          <div
+                            className="flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-white"
+                            style={{ backgroundColor: agent.avatarColor }}
+                          >
+                            {agent.name[0]}
+                          </div>
+                        );
+                      })()}
+                      <span className="font-medium">{selectedAgents[0].name}</span>
+                      <svg className="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                      </svg>
+                    </button>
+                  )}
 
-              {/* Add agent button + dropdown */}
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setShowAgentDropdown(!showAgentDropdown)}
-                  className="flex items-center gap-1 rounded-[var(--radius-pill)] border border-dashed border-gray-300 px-2.5 py-1 text-[12px] text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors cursor-pointer"
-                >
-                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                  </svg>
-                  {selectedAgentIds.length === 0 ? "Select agents" : "Add"}
-                </button>
-
-                {showAgentDropdown && (
-                  <div className="absolute bottom-full left-0 mb-2 w-56 rounded-[var(--radius-md)] border border-gray-200 bg-white py-1 shadow-lg z-50">
-                    {unselectedAgents.length === 0 && selectedAgents.length > 0 && (
-                      <p className="px-3 py-2 text-[12px] text-gray-400">All agents selected</p>
-                    )}
-                    {agents.length === 0 && (
-                      <p className="px-3 py-2 text-[12px] text-gray-400">No agents configured</p>
-                    )}
-                    {unselectedAgents.map((agent) => (
+                  {selectedAgents.length === 0 && (
+                    <div className="relative" ref={dropdownRef}>
                       <button
-                        key={agent.id}
-                        onClick={() => {
-                          toggleAgent(agent.id);
-                          if (unselectedAgents.length <= 1) setShowAgentDropdown(false);
-                        }}
-                        className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] text-gray-700 hover:bg-gray-50 cursor-pointer"
+                        onClick={() => setShowAgentDropdown(!showAgentDropdown)}
+                        className="flex items-center gap-1 rounded-[var(--radius-pill)] border border-dashed border-gray-300 px-2.5 py-1 text-[12px] text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors cursor-pointer"
                       >
-                        {(() => {
-                          const logo = getAgentLogo(agent.type);
-                          return logo ? (
-                            <img src={logo} alt="" className="h-5 w-5 rounded-full" />
-                          ) : (
-                            <div
-                              className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                              style={{ backgroundColor: agent.avatarColor }}
-                            >
-                              {agent.name[0]}
-                            </div>
-                          );
-                        })()}
-                        {agent.name}
-                      </button>
-                    ))}
-                    {selectedAgents.length > 0 && unselectedAgents.length > 0 && (
-                      <div className="my-1 border-t border-gray-100" />
-                    )}
-                    {selectedAgents.map((agent) => (
-                      <button
-                        key={agent.id}
-                        onClick={() => toggleAgent(agent.id)}
-                        className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] text-gray-500 hover:bg-gray-50 cursor-pointer"
-                      >
-                        {(() => {
-                          const logo = getAgentLogo(agent.type);
-                          return logo ? (
-                            <img src={logo} alt="" className="h-5 w-5 rounded-full opacity-50" />
-                          ) : (
-                            <div
-                              className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white opacity-50"
-                              style={{ backgroundColor: agent.avatarColor }}
-                            >
-                              {agent.name[0]}
-                            </div>
-                          );
-                        })()}
-                        <span className="line-through">{agent.name}</span>
-                        <svg className="ml-auto h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                         </svg>
+                        Select agent
                       </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              </>
+
+                      {showAgentDropdown && (
+                        <div className="absolute bottom-full left-0 mb-2 w-56 rounded-[var(--radius-md)] border border-gray-200 bg-white py-1 shadow-lg z-50">
+                          {agents.length === 0 && (
+                            <p className="px-3 py-2 text-[12px] text-gray-400">No agents configured</p>
+                          )}
+                          {agents.map((agent) => (
+                            <button
+                              key={agent.id}
+                              onClick={() => selectSingleAgent(agent.id)}
+                              className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] text-gray-700 hover:bg-gray-50 cursor-pointer"
+                            >
+                              {(() => {
+                                const logo = getAgentAvatar(agent.role) || getAgentLogo(agent.type);
+                                return logo ? (
+                                  <img src={logo} alt="" className="h-5 w-5 rounded-full" />
+                                ) : (
+                                  <div
+                                    className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                                    style={{ backgroundColor: agent.avatarColor }}
+                                  >
+                                    {agent.name[0]}
+                                  </div>
+                                );
+                              })()}
+                              {agent.name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
