@@ -4,6 +4,25 @@ export interface User {
   createdAt: string;
 }
 
+export interface McpServerConfig {
+  name: string;
+  command: string;
+  args?: string[];
+  env?: Record<string, string>;
+}
+
+export interface SkillConfig {
+  name: string;
+  description: string;
+  prompt: string;
+}
+
+export interface AgentConfig {
+  mcpServers?: McpServerConfig[];
+  skills?: SkillConfig[];
+  [key: string]: unknown;
+}
+
 export interface Agent {
   id: string;
   name: string;
@@ -11,18 +30,38 @@ export interface Agent {
   avatarColor: string;
   systemPrompt?: string;
   capabilities: string[];
-  config: Record<string, unknown>;
+  config: AgentConfig;
   createdAt: string;
+}
+
+export type ArgoPhase = "clarify" | "specify" | "plan" | "tasks" | "implement" | "review" | "commit" | "done";
+
+export interface ArgoState {
+  phase: ArgoPhase;
+  featureDir: string;
+  clarifyDone: boolean;
+  artifacts: {
+    spec?: boolean;
+    plan?: boolean;
+    tasks?: boolean;
+  };
+  implementProgress?: {
+    total: number;
+    completed: number;
+  };
+  reviewResult?: "pass" | "fail";
+  error?: string;
 }
 
 export interface Conversation {
   id: string;
   userId: string;
   title: string;
-  mode: "single" | "group";
+  mode: "single" | "group" | "argo";
+  moderatorAgentId?: string;
+  argoState?: ArgoState | null;
   pinned: boolean;
   archived: boolean;
-  isExternal?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -31,6 +70,7 @@ export interface ConversationWithDetails extends Conversation {
   agents: Pick<Agent, "id" | "name" | "type" | "avatarColor">[];
   lastMessage?: { content: string; timestamp: string };
   unreadCount: number;
+  workspace?: string | null;
 }
 
 export interface StoredEvent {
@@ -44,12 +84,10 @@ export interface StoredEvent {
 
 export interface Session {
   sessionId: string;
-  externalId?: string;
   provider: "claude_code" | "codex";
   conversationId: string;
   workspace: string;
   status: "starting" | "running" | "stopped" | "crashed";
-  isExternal: boolean;
   pid?: number;
   createdAt: string;
 }
@@ -86,10 +124,8 @@ export interface Task {
 export type ServerMessage =
   | { type: "event"; payload: unknown; sequence: number }
   | { type: "catchup_complete"; lastSequence: number }
-  | { type: "pty_output"; sessionId: string; data: string }
   | { type: "error"; message: string; code: string };
 
 export type ClientMessage =
   | { type: "subscribe"; conversationId: string }
-  | { type: "unsubscribe"; conversationId: string }
-  | { type: "pty_input"; sessionId: string; data: string };
+  | { type: "unsubscribe"; conversationId: string };

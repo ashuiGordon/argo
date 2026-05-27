@@ -22,9 +22,11 @@ export const AuthResponse = z.object({
 export type AuthResponse = z.infer<typeof AuthResponse>;
 
 export const CreateConversationRequest = z.object({
-  mode: z.enum(["single", "group"]),
+  mode: z.enum(["single", "group", "argo"]),
   agentIds: z.array(z.string().uuid()).min(1),
+  moderatorAgentId: z.string().uuid().optional(),
   title: z.string().optional(),
+  workspace: z.string().min(1).optional(),
 });
 export type CreateConversationRequest = z.infer<typeof CreateConversationRequest>;
 
@@ -38,6 +40,7 @@ export type UpdateConversationRequest = z.infer<typeof UpdateConversationRequest
 export const SendMessageRequest = z.object({
   content: z.string().min(1),
   quotedSequence: z.number().int().optional().nullable(),
+  workspace: z.string().optional(),
 });
 export type SendMessageRequest = z.infer<typeof SendMessageRequest>;
 
@@ -52,12 +55,30 @@ export const AlwaysAllowRequest = z.object({
 });
 export type AlwaysAllowRequest = z.infer<typeof AlwaysAllowRequest>;
 
+export const McpServerConfigSchema = z.object({
+  name: z.string().min(1).max(64).regex(/^[a-z0-9][a-z0-9-]*$/),
+  command: z.string().min(1).max(500),
+  args: z.array(z.string().max(1000)).max(50).optional(),
+  env: z.record(z.string().max(1000)).optional(),
+});
+
+export const SkillConfigSchema = z.object({
+  name: z.string().min(1).max(32).regex(/^[a-z0-9][a-z0-9-]*$/),
+  description: z.string().min(1).max(200),
+  prompt: z.string().min(1).max(10000),
+});
+
+export const AgentConfigSchema = z.object({
+  mcpServers: z.array(McpServerConfigSchema).max(20).optional(),
+  skills: z.array(SkillConfigSchema).max(50).optional(),
+}).passthrough();
+
 export const CreateAgentRequest = z.object({
   name: z.string().min(1).max(100),
   avatarColor: z.string().regex(/^#[0-9a-fA-F]{6}$/),
   systemPrompt: z.string().max(10000).optional(),
   capabilities: z.array(z.string()).optional(),
-  config: z.record(z.unknown()).optional(),
+  config: AgentConfigSchema.optional(),
 });
 export type CreateAgentRequest = z.infer<typeof CreateAgentRequest>;
 
@@ -66,7 +87,7 @@ export const UpdateAgentRequest = z.object({
   avatarColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   systemPrompt: z.string().max(10000).optional(),
   capabilities: z.array(z.string()).optional(),
-  config: z.record(z.unknown()).optional(),
+  config: AgentConfigSchema.optional(),
 });
 export type UpdateAgentRequest = z.infer<typeof UpdateAgentRequest>;
 

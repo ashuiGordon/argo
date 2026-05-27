@@ -52,10 +52,10 @@ export const api = {
       if (search) params.set("search", search);
       return request<{ conversations: unknown[]; total: number }>(`/conversations?${params}`);
     },
-    create: (mode: string, agentIds: string[], title?: string) =>
+    create: (mode: string, agentIds: string[], title?: string, workspace?: string) =>
       request<{ id: string; title: string; mode: string; agents: unknown[] }>("/conversations", {
         method: "POST",
-        body: JSON.stringify({ mode, agentIds, title }),
+        body: JSON.stringify({ mode, agentIds, title, workspace }),
       }),
     update: (id: string, data: { title?: string; pinned?: boolean; archived?: boolean }) =>
       request(`/conversations/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
@@ -64,12 +64,14 @@ export const api = {
       request<{ events: unknown[]; hasMore: boolean }>(
         `/conversations/${id}/events?afterSequence=${afterSequence}&limit=${limit}`,
       ),
+    markRead: (id: string) =>
+      request<{ ok: boolean }>(`/conversations/${id}/read`, { method: "POST" }),
   },
   messages: {
-    send: (conversationId: string, content: string) =>
+    send: (conversationId: string, content: string, workspace?: string) =>
       request<{ accepted: boolean; sessionId: string }>(`/conversations/${conversationId}/messages`, {
         method: "POST",
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, workspace }),
       }),
   },
   agents: {
@@ -86,9 +88,44 @@ export const api = {
     pending: () => request<{ approvals: unknown[] }>("/approvals/pending"),
   },
   sessions: {
-    createPty: (conversationId: string) =>
-      request<{ sessionId: string }>(`/sessions/pty?conversationId=${conversationId}`, { method: "POST" }),
-    destroyPty: (sessionId: string) =>
-      request(`/sessions/pty/${sessionId}`, { method: "DELETE" }),
+    terminate: (sessionId: string) =>
+      request(`/sessions/${sessionId}`, { method: "DELETE" }),
+    status: (sessionId: string) =>
+      request<{ sessionId: string; status: string; provider: string; isActive: boolean }>(`/sessions/${sessionId}/status`),
+  },
+  system: {
+    listDirectories: (path?: string) => {
+      const params = path ? `?path=${encodeURIComponent(path)}` : "";
+      return request<{
+        current: string;
+        parent: string;
+        breadcrumbs: Array<{ name: string; path: string }>;
+        directories: Array<{ name: string; path: string }>;
+      }>(`/system/directories${params}`);
+    },
+    listFiles: (path: string, depth = 3) => {
+      const params = `?path=${encodeURIComponent(path)}&depth=${depth}`;
+      return request<{
+        tree: Array<{ name: string; path: string; type: "file" | "directory"; children?: unknown[] }>;
+        root: string;
+      }>(`/system/files${params}`);
+    },
+    readFile: (path: string) => {
+      const params = `?path=${encodeURIComponent(path)}`;
+      return request<{ content: string; language: string; path: string; name: string }>(
+        `/system/file-content${params}`,
+      );
+    },
+    pickFolder: () =>
+      request<{ path: string | null; cancelled?: boolean }>("/system/pick-folder", {
+        method: "POST",
+      }),
+    worktrees: (workspace: string) => {
+      const params = `?workspace=${encodeURIComponent(workspace)}`;
+      return request<{
+        active: Array<{ path: string; branch: string; sessionId: string; conversationId: string; baseBranch: string }>;
+        git: Array<{ path: string; branch: string; head: string }>;
+      }>(`/system/worktrees${params}`);
+    },
   },
 };

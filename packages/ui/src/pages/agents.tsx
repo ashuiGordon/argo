@@ -11,6 +11,10 @@ interface Agent {
   avatarColor: string;
   systemPrompt?: string;
   capabilities: string[];
+  config?: {
+    mcpServers?: Array<{ name: string; command: string; args?: string[]; env?: Record<string, string> }>;
+    skills?: Array<{ name: string; description: string; prompt: string }>;
+  };
 }
 
 export function AgentsPage() {
@@ -28,13 +32,13 @@ export function AgentsPage() {
     setAgents(res.agents as Agent[]);
   }
 
-  async function handleCreate(data: { name: string; avatarColor: string; systemPrompt: string; capabilities: string[] }) {
+  async function handleCreate(data: { name: string; avatarColor: string; systemPrompt: string; capabilities: string[]; config?: Record<string, unknown> }) {
     await api.agents.create(data);
     setShowForm(false);
     loadAgents();
   }
 
-  async function handleUpdate(data: { name: string; avatarColor: string; systemPrompt: string; capabilities: string[] }) {
+  async function handleUpdate(data: { name: string; avatarColor: string; systemPrompt: string; capabilities: string[]; config?: Record<string, unknown> }) {
     if (!editingAgent) return;
     await api.agents.update(editingAgent.id, data);
     setEditingAgent(null);
@@ -75,7 +79,20 @@ export function AgentsPage() {
               {editingAgent ? "Edit Agent" : "New Agent"}
             </h2>
             <AgentForm
-              initial={editingAgent ? { name: editingAgent.name, avatarColor: editingAgent.avatarColor, systemPrompt: editingAgent.systemPrompt || "" } : undefined}
+              initial={editingAgent ? {
+                name: editingAgent.name,
+                avatarColor: editingAgent.avatarColor,
+                systemPrompt: editingAgent.systemPrompt || "",
+                config: {
+                  mcpServers: editingAgent.config?.mcpServers?.map((s) => ({
+                    name: s.name,
+                    command: s.command,
+                    args: s.args || [],
+                    env: s.env || {},
+                  })),
+                  skills: editingAgent.config?.skills,
+                },
+              } : undefined}
               onSubmit={editingAgent ? handleUpdate : handleCreate}
               onCancel={() => { setShowForm(false); setEditingAgent(null); }}
               submitLabel={editingAgent ? "Save" : "Create"}

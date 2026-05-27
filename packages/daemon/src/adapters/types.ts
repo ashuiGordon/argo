@@ -1,6 +1,5 @@
-import type { NormalizedEvent } from "@argo/shared";
+import type { NormalizedEvent, McpServerConfig, SkillConfig } from "@argo/shared";
 
-export type AdapterMode = "headless" | "pty";
 export type SessionStatus = "starting" | "running" | "idle" | "stopped" | "crashed";
 export type ProviderType = "claude_code" | "codex";
 export type ApprovalDecision = "approve" | "deny" | "always_allow";
@@ -9,10 +8,15 @@ export interface AdapterConfig {
   workspace: string;
   sessionId: string;
   conversationId: string;
-  mode: AdapterMode;
   systemPrompt?: string;
   model?: string;
   permissionMode?: "default" | "trust";
+  resumeSessionId?: string;
+  mcpServers?: McpServerConfig[];
+  skills?: SkillConfig[];
+  contextPreamble?: string;
+  maxTurns?: number;
+  claudeCodePath?: string;
 }
 
 export interface ManagedRuntime {

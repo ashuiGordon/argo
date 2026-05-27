@@ -22,14 +22,13 @@ conversationRoutes.get("/", (c) => {
       const payload = JSON.parse(lastEvent.payload);
       lastMessage = { content: payload.content, timestamp: lastEvent.timestamp };
     }
-    const isExternal = conv.title.startsWith("External:");
     return {
       id: conv.id,
       title: conv.title,
       mode: conv.mode,
+      workspace: conv.workspace || null,
       pinned: !!conv.pinned,
       archived: !!conv.archived,
-      isExternal,
       agents: agents.map((a) => ({ id: a.id, name: a.name, type: a.type, avatarColor: a.avatar_color })),
       lastMessage,
       unreadCount: queries.getUnreadCount(userId, conv.id),
@@ -50,7 +49,7 @@ conversationRoutes.post("/", async (c) => {
   const agents = parsed.agentIds.map((aid) => queries.getAgentById(aid)).filter(Boolean);
   const title = parsed.title || agents.map((a) => a!.name).join(", ") || "New Chat";
 
-  queries.createConversation(id, userId, title, parsed.mode);
+  queries.createConversation(id, userId, title, parsed.mode, parsed.workspace, parsed.moderatorAgentId);
   for (const agentId of parsed.agentIds) {
     queries.addConversationAgent(id, agentId);
   }
@@ -61,6 +60,7 @@ conversationRoutes.post("/", async (c) => {
       id,
       title,
       mode: parsed.mode,
+      moderatorAgentId: parsed.moderatorAgentId,
       agents: convAgents.map((a) => ({ id: a.id, name: a.name, avatarColor: a.avatar_color })),
     },
     201,

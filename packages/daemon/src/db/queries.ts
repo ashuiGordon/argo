@@ -92,10 +92,10 @@ export class Queries {
   }
 
   // Conversations
-  createConversation(id: string, userId: string, title: string, mode: string) {
+  createConversation(id: string, userId: string, title: string, mode: string, workspace?: string, moderatorAgentId?: string) {
     return this.db
-      .prepare("INSERT INTO conversations (id, user_id, title, mode) VALUES (?, ?, ?, ?)")
-      .run(id, userId, title, mode);
+      .prepare("INSERT INTO conversations (id, user_id, title, mode, workspace, moderator_agent_id) VALUES (?, ?, ?, ?, ?, ?)")
+      .run(id, userId, title, mode, workspace || null, moderatorAgentId || null);
   }
 
   addConversationAgent(conversationId: string, agentId: string) {
@@ -109,7 +109,7 @@ export class Queries {
     let query = `SELECT c.*, GROUP_CONCAT(ca.agent_id) as agent_ids
                  FROM conversations c
                  LEFT JOIN conversation_agents ca ON ca.conversation_id = c.id
-                 WHERE (c.user_id = ? OR EXISTS (SELECT 1 FROM sessions s WHERE s.conversation_id = c.id AND s.is_external = 1))`;
+                 WHERE c.user_id = ?`;
     const params: unknown[] = [userId];
 
     if (search) {
@@ -125,6 +125,7 @@ export class Queries {
       user_id: string;
       title: string;
       mode: string;
+      workspace: string | null;
       pinned: number;
       archived: number;
       created_at: string;
@@ -134,7 +135,7 @@ export class Queries {
   }
 
   getConversationCount(userId: string, search?: string): number {
-    let query = "SELECT COUNT(*) as count FROM conversations WHERE (user_id = ? OR EXISTS (SELECT 1 FROM sessions s WHERE s.conversation_id = conversations.id AND s.is_external = 1))";
+    let query = "SELECT COUNT(*) as count FROM conversations WHERE user_id = ?";
     const params: unknown[] = [userId];
     if (search) {
       query += " AND title LIKE ?";
@@ -145,7 +146,7 @@ export class Queries {
 
   getConversation(id: string) {
     return this.db.prepare("SELECT * FROM conversations WHERE id = ?").get(id) as
-      | { id: string; user_id: string; title: string; mode: string; pinned: number; archived: number }
+      | { id: string; user_id: string; title: string; mode: string; workspace: string | null; moderator_agent_id: string | null; pinned: number; archived: number }
       | undefined;
   }
 
@@ -176,11 +177,11 @@ export class Queries {
   getConversationAgents(conversationId: string) {
     return this.db
       .prepare(
-        `SELECT a.id, a.name, a.avatar_color, a.type, a.system_prompt FROM agents a
+        `SELECT a.id, a.name, a.avatar_color, a.type, a.system_prompt, a.config FROM agents a
          JOIN conversation_agents ca ON ca.agent_id = a.id
          WHERE ca.conversation_id = ?`,
       )
-      .all(conversationId) as Array<{ id: string; name: string; avatar_color: string; type: string; system_prompt: string | null }>;
+      .all(conversationId) as Array<{ id: string; name: string; avatar_color: string; type: string; system_prompt: string | null; config: string }>;
   }
 
   // Events
@@ -261,30 +262,8 @@ export class Queries {
       provider: string;
       conversation_id: string;
       status: string;
-      is_external: number;
       workspace: string;
     }>;
-  }
-
-  findSessionByExternalId(externalId: string) {
-    return this.db
-      .prepare("SELECT * FROM sessions WHERE external_id = ?")
-      .get(externalId) as { session_id: string; status: string } | undefined;
-  }
-
-  createExternalSession(
-    sessionId: string,
-    externalId: string,
-    provider: string,
-    conversationId: string,
-    workspace: string,
-    pid: number,
-  ) {
-    return this.db
-      .prepare(
-        "INSERT INTO sessions (session_id, external_id, provider, conversation_id, workspace, pid, is_external, status) VALUES (?, ?, ?, ?, ?, ?, 1, 'running')",
-      )
-      .run(sessionId, externalId, provider, conversationId, workspace, pid);
   }
 
   getUsers() {
@@ -370,6 +349,8 @@ export class Queries {
       .prepare(
         `SELECT COUNT(*) as count FROM events e
          WHERE e.conversation_id = ?
+         AND e.type = 'message'
+         AND json_extract(e.payload, '$.role') = 'assistant'
          AND e.sequence_number > COALESCE(
            (SELECT last_read_sequence FROM conversation_reads WHERE user_id = ? AND conversation_id = ?), 0
          )`,
@@ -394,5 +375,50 @@ export class Queries {
     return this.db
       .prepare("SELECT event_sequence_number, pinned_at FROM pinned_messages WHERE conversation_id = ? ORDER BY pinned_at DESC")
       .all(conversationId) as Array<{ event_sequence_number: number; pinned_at: string }>;
+  }
+
+  // Memories
+  addMemory(id: string, conversationId: string, sessionId: string | null, type: string, content: string, metadata: string, tokenEstimate: number) {
+    return this.db
+      .prepare("INSERT INTO memories (id, conversation_id, session_id, type, content, metadata, token_estimate) VALUES (?, ?, ?, ?, ?, ?, ?)")
+      .run(id, conversationId, sessionId, type, content, metadata, tokenEstimate);
+  }
+
+  getLatestSummary(conversationId: string) {
+    return this.db
+      .prepare("SELECT content, created_at FROM memories WHERE conversation_id = ? AND type = 'summary' ORDER BY created_at DESC LIMIT 1")
+      .get(conversationId) as { content: string; created_at: string } | undefined;
+  }
+
+  getObservations(conversationId: string, limit: number = 20) {
+    return this.db
+      .prepare("SELECT content, created_at FROM memories WHERE conversation_id = ? AND type = 'observation' ORDER BY created_at DESC LIMIT ?")
+      .all(conversationId, limit) as Array<{ content: string; created_at: string }>;
+  }
+
+  getMemoriesByType(conversationId: string, type: string, limit: number = 50) {
+    return this.db
+      .prepare("SELECT id, content, metadata, token_estimate, created_at FROM memories WHERE conversation_id = ? AND type = ? ORDER BY created_at DESC LIMIT ?")
+      .all(conversationId, type, limit) as Array<{ id: string; content: string; metadata: string; token_estimate: number; created_at: string }>;
+  }
+
+  getSessionMessages(sessionId: string) {
+    return this.db
+      .prepare("SELECT payload, timestamp FROM events WHERE session_id = ? AND type = 'message' ORDER BY sequence_number ASC")
+      .all(sessionId) as Array<{ payload: string; timestamp: string }>;
+  }
+
+  // Argo state
+  getArgoState(conversationId: string): string | null {
+    const row = this.db
+      .prepare("SELECT argo_state FROM conversations WHERE id = ?")
+      .get(conversationId) as { argo_state: string | null } | undefined;
+    return row?.argo_state ?? null;
+  }
+
+  updateArgoState(conversationId: string, state: string) {
+    return this.db
+      .prepare("UPDATE conversations SET argo_state = ?, updated_at = datetime('now') WHERE id = ?")
+      .run(state, conversationId);
   }
 }

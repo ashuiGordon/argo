@@ -38,7 +38,9 @@ export function initializeSchema(db: Database.Database): void {
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       title TEXT NOT NULL,
-      mode TEXT NOT NULL CHECK(mode IN ('single', 'group')) DEFAULT 'single',
+      mode TEXT NOT NULL CHECK(mode IN ('single', 'group', 'argo')) DEFAULT 'single',
+      workspace TEXT,
+      argo_state TEXT,
       pinned INTEGER NOT NULL DEFAULT 0,
       archived INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -65,12 +67,10 @@ export function initializeSchema(db: Database.Database): void {
 
     CREATE TABLE IF NOT EXISTS sessions (
       session_id TEXT PRIMARY KEY,
-      external_id TEXT UNIQUE,
       provider TEXT NOT NULL CHECK(provider IN ('claude_code', 'codex')),
       conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
       workspace TEXT NOT NULL,
       status TEXT NOT NULL CHECK(status IN ('starting', 'running', 'stopped', 'crashed')) DEFAULT 'starting',
-      is_external INTEGER NOT NULL DEFAULT 0,
       pid INTEGER,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
@@ -129,7 +129,32 @@ export function initializeSchema(db: Database.Database): void {
       last_read_sequence INTEGER NOT NULL DEFAULT 0,
       PRIMARY KEY (user_id, conversation_id)
     );
+
+    CREATE TABLE IF NOT EXISTS memories (
+      id TEXT PRIMARY KEY,
+      conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+      session_id TEXT,
+      type TEXT NOT NULL CHECK(type IN ('summary', 'observation', 'decision')),
+      content TEXT NOT NULL,
+      metadata TEXT NOT NULL DEFAULT '{}',
+      token_estimate INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_memories_conv_type ON memories(conversation_id, type);
+    CREATE INDEX IF NOT EXISTS idx_memories_created ON memories(created_at DESC);
   `);
+
+  // Migrations for existing databases
+  const cols = db.prepare("PRAGMA table_info(conversations)").all() as Array<{ name: string }>;
+  if (!cols.some((c) => c.name === "workspace")) {
+    db.exec("ALTER TABLE conversations ADD COLUMN workspace TEXT");
+  }
+  if (!cols.some((c) => c.name === "moderator_agent_id")) {
+    db.exec("ALTER TABLE conversations ADD COLUMN moderator_agent_id TEXT REFERENCES agents(id)");
+  }
+  if (!cols.some((c) => c.name === "argo_state")) {
+    db.exec("ALTER TABLE conversations ADD COLUMN argo_state TEXT");
+  }
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

@@ -1,0 +1,133 @@
+export interface FeaturedMcpServer {
+  id: string;
+  name: string;
+  description: string;
+  command: string;
+  args: string[];
+  env: Record<string, string>;
+  category: "filesystem" | "git" | "database" | "cloud" | "web" | "dev-tools" | "ai" | "communication";
+  source?: string;
+}
+
+export const featuredMcpServers: FeaturedMcpServer[] = [
+  {
+    id: "filesystem",
+    name: "filesystem",
+    description: "Read, write, and manage files and directories",
+    command: "npx",
+    args: ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"],
+    env: {},
+    category: "filesystem",
+    source: "github.com/modelcontextprotocol/servers",
+  },
+  {
+    id: "git",
+    name: "git",
+    description: "Git repository operations — clone, commit, diff, log, branch management",
+    command: "uvx",
+    args: ["mcp-server-git"],
+    env: {},
+    category: "git",
+    source: "github.com/modelcontextprotocol/servers",
+  },
+  {
+    id: "github",
+    name: "github",
+    description: "GitHub API — issues, PRs, repos, code search",
+    command: "npx",
+    args: ["-y", "@modelcontextprotocol/server-github"],
+    env: { GITHUB_PERSONAL_ACCESS_TOKEN: "" },
+    category: "dev-tools",
+    source: "github.com/modelcontextprotocol/servers",
+  },
+  {
+    id: "postgres",
+    name: "postgres",
+    description: "Query and manage PostgreSQL databases",
+    command: "npx",
+    args: ["-y", "@modelcontextprotocol/server-postgres"],
+    env: { POSTGRES_CONNECTION_STRING: "" },
+    category: "database",
+    source: "github.com/modelcontextprotocol/servers",
+  },
+  {
+    id: "sqlite",
+    name: "sqlite",
+    description: "SQLite database operations",
+    command: "uvx",
+    args: ["mcp-server-sqlite", "--db-path", ""],
+    env: {},
+    category: "database",
+    source: "github.com/modelcontextprotocol/servers",
+  },
+  {
+    id: "fetch",
+    name: "fetch",
+    description: "Fetch web content and convert to readable text",
+    command: "uvx",
+    args: ["mcp-server-fetch"],
+    env: {},
+    category: "web",
+    source: "github.com/modelcontextprotocol/servers",
+  },
+  {
+    id: "memory",
+    name: "memory",
+    description: "Persistent memory using a knowledge graph",
+    command: "npx",
+    args: ["-y", "@modelcontextprotocol/server-memory"],
+    env: {},
+    category: "ai",
+    source: "github.com/modelcontextprotocol/servers",
+  },
+  {
+    id: "puppeteer",
+    name: "puppeteer",
+    description: "Browser automation — navigate, screenshot, interact with web pages",
+    command: "npx",
+    args: ["-y", "@modelcontextprotocol/server-puppeteer"],
+    env: {},
+    category: "web",
+    source: "github.com/modelcontextprotocol/servers",
+  },
+  {
+    id: "slack",
+    name: "slack",
+    description: "Slack workspace integration — channels, messages, users",
+    command: "npx",
+    args: ["-y", "@modelcontextprotocol/server-slack"],
+    env: { SLACK_BOT_TOKEN: "", SLACK_TEAM_ID: "" },
+    category: "communication",
+    source: "github.com/modelcontextprotocol/servers",
+  },
+  {
+    id: "sequential-thinking",
+    name: "sequential-thinking",
+    description: "Dynamic problem-solving through structured thought sequences",
+    command: "npx",
+    args: ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+    env: {},
+    category: "ai",
+    source: "github.com/modelcontextprotocol/servers",
+  },
+  {
+    id: "brave-search",
+    name: "brave-search",
+    description: "Web and local search using Brave Search API",
+    command: "npx",
+    args: ["-y", "@modelcontextprotocol/server-brave-search"],
+    env: { BRAVE_API_KEY: "" },
+    category: "web",
+    source: "github.com/modelcontextprotocol/servers",
+  },
+  {
+    id: "aws-kb-retrieval",
+    name: "aws-kb-retrieval",
+    description: "AWS Bedrock knowledge base retrieval",
+    command: "npx",
+    args: ["-y", "@modelcontextprotocol/server-aws-kb-retrieval"],
+    env: { AWS_ACCESS_KEY_ID: "", AWS_SECRET_ACCESS_KEY: "", AWS_REGION: "" },
+    category: "cloud",
+    source: "github.com/modelcontextprotocol/servers",
+  },
+];

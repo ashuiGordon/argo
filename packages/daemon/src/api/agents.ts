@@ -1,10 +1,22 @@
 import { Hono } from "hono";
 import { randomUUID } from "node:crypto";
-import { CreateAgentRequest, UpdateAgentRequest } from "@argo/shared";
+import { CreateAgentRequest, UpdateAgentRequest, validateMcpServers, validateSkills } from "@argo/shared";
 import { getQueries } from "../db/init.js";
 import type { Env } from "./types.js";
 
 export const agentRoutes = new Hono<Env>();
+
+function validateAgentConfig(config: Record<string, unknown> | undefined): string[] {
+  if (!config) return [];
+  const errors: string[] = [];
+  if (config.mcpServers && Array.isArray(config.mcpServers)) {
+    errors.push(...validateMcpServers(config.mcpServers as never));
+  }
+  if (config.skills && Array.isArray(config.skills)) {
+    errors.push(...validateSkills(config.skills as never));
+  }
+  return errors;
+}
 
 agentRoutes.get("/", (c) => {
   const queries = getQueries();
@@ -30,6 +42,12 @@ agentRoutes.post("/", async (c) => {
   }
 
   const { name, avatarColor, systemPrompt, capabilities, config } = parsed.data;
+
+  const configErrors = validateAgentConfig(config as Record<string, unknown> | undefined);
+  if (configErrors.length > 0) {
+    return c.json({ error: { code: "VALIDATION_ERROR", message: configErrors[0], details: configErrors.map((e) => ({ field: "config", issue: e })) } }, 400);
+  }
+
   const id = randomUUID();
   const queries = getQueries();
   queries.createAgent(id, name, "custom", avatarColor, capabilities || [], config || {}, systemPrompt);
@@ -48,6 +66,11 @@ agentRoutes.put("/:id", async (c) => {
   const parsed = UpdateAgentRequest.safeParse(body);
   if (!parsed.success) {
     return c.json({ error: { code: "VALIDATION_ERROR", message: "Invalid input", details: parsed.error.issues } }, 400);
+  }
+
+  const configErrors = validateAgentConfig(parsed.data.config as Record<string, unknown> | undefined);
+  if (configErrors.length > 0) {
+    return c.json({ error: { code: "VALIDATION_ERROR", message: configErrors[0], details: configErrors.map((e) => ({ field: "config", issue: e })) } }, 400);
   }
 
   queries.updateAgent(id, parsed.data);

@@ -1,6 +1,7 @@
-import type { ServerMessage, NormalizedEvent, TaskStatus } from "@argo/shared";
+import type { ServerMessage, NormalizedEvent, TaskStatus, ArgoPhase } from "@argo/shared";
 import { useConversationsStore } from "../stores/conversations";
 import { useOrchestratorStore } from "../stores/orchestrator";
+import { useSessionsStore } from "../stores/sessions";
 import { wsClient } from "./ws-client";
 
 export function initWsHandler() {
@@ -29,7 +30,90 @@ export function initWsHandler() {
             taskPayload.assignee,
           );
         }
+
+        if (payload.type === "argo_phase_change") {
+          const argoPayload = payload as { phase: ArgoPhase; previousPhase: ArgoPhase };
+          const currentState = store.argoStates?.get(activeId);
+          store.updateArgoState(activeId, {
+            phase: argoPayload.phase,
+            featureDir: currentState?.featureDir || "",
+            clarifyDone: currentState?.clarifyDone || argoPayload.phase !== "clarify",
+            artifacts: currentState?.artifacts || {},
+            implementProgress: currentState?.implementProgress,
+            reviewResult: currentState?.reviewResult,
+          });
+        }
+
+        handleSessionEvents(payload);
       }
     }
   });
+}
+
+function handleSessionEvents(event: NormalizedEvent) {
+  const sessStore = useSessionsStore.getState();
+
+  switch (event.type) {
+    case "session_start": {
+      const e = event as { sessionId: string; provider: "claude_code" | "codex"; workspace: string };
+      sessStore.updateSession(e.sessionId, {
+        sessionId: e.sessionId,
+        provider: e.provider,
+        status: "running",
+        hookEvents: [],
+      });
+      break;
+    }
+    case "session_end": {
+      const e = event as { sessionId: string; exitCode: number };
+      sessStore.updateSession(e.sessionId, {
+        status: e.exitCode === 0 ? "stopped" : "crashed",
+      });
+      break;
+    }
+    case "token_usage": {
+      const e = event as {
+        sessionId: string; provider: string; model?: string;
+        inputTokens: number; outputTokens: number; totalTokens: number;
+        cachedInputTokens: number; contextUsedTokens?: number;
+        contextWindowTokens?: number; contextPercent?: number;
+      };
+      sessStore.setTokenUsage(e.sessionId, {
+        model: e.model,
+        inputTokens: e.inputTokens,
+        outputTokens: e.outputTokens,
+        totalTokens: e.totalTokens,
+        cachedInputTokens: e.cachedInputTokens,
+        contextUsedTokens: e.contextUsedTokens,
+        contextWindowTokens: e.contextWindowTokens,
+        contextPercent: e.contextPercent,
+      });
+      break;
+    }
+    case "hook_event": {
+      const e = event as { sessionId: string; hookType: string; hookPayload: Record<string, unknown> };
+      sessStore.addHookActivity(e.sessionId, {
+        id: crypto.randomUUID?.() || Math.random().toString(36).slice(2),
+        hookType: e.hookType,
+        timestamp: new Date().toISOString(),
+        summary: formatHookSummary(e.hookType, e.hookPayload),
+      });
+      break;
+    }
+  }
+}
+
+function formatHookSummary(hookType: string, payload: Record<string, unknown>): string {
+  switch (hookType) {
+    case "PreToolUse":
+    case "PostToolUse":
+      return `${hookType}: ${payload.tool_name || "unknown tool"}`;
+    case "SubagentStart":
+    case "SubagentStop":
+      return `${hookType}: ${payload.agent_name || "subagent"}`;
+    case "Notification":
+      return `${payload.title || "Notification"}`;
+    default:
+      return hookType;
+  }
 }

@@ -8,7 +8,6 @@ interface ConversationItemProps {
   pinned: boolean;
   unreadCount: number;
   active: boolean;
-  isExternal?: boolean;
   agents: Array<{ name: string; type: string; avatarColor: string }>;
   onClick: () => void;
 }
@@ -19,7 +18,6 @@ export function ConversationItem({
   pinned,
   unreadCount,
   active,
-  isExternal,
   agents,
   onClick,
 }: ConversationItemProps) {
@@ -33,7 +31,7 @@ export function ConversationItem({
         active
           ? "bg-gray-100"
           : "hover:bg-gray-100/60"
-      } ${isExternal ? "border border-dashed border-gray-300" : ""}`}
+      }`}
     >
       {agent ? (
         (() => {
@@ -49,10 +47,6 @@ export function ConversationItem({
             </div>
           );
         })()
-      ) : isExternal ? (
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-dashed border-gray-400 text-[11px] text-gray-500">
-          E
-        </div>
       ) : null}
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
@@ -62,9 +56,6 @@ export function ConversationItem({
           </span>
           <span className="shrink-0 text-[11px] text-gray-400">{timeStr}</span>
         </div>
-        {isExternal && (
-          <span className="text-[11px] font-mono uppercase tracking-[0.2px] text-orange-500">External</span>
-        )}
       </div>
       {unreadCount > 0 && (
         <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-blue-600 px-1 text-[10px] font-600 text-white">

@@ -8,6 +8,7 @@ import { messageRoutes } from "./messages.js";
 import { approvalRoutes } from "./approvals.js";
 import { sessionRoutes } from "./sessions.js";
 import { pinRoutes } from "./pins.js";
+import { systemRoutes } from "./system.js";
 import type { Env } from "./types.js";
 
 export function createApi() {
@@ -25,6 +26,7 @@ export function createApi() {
   app.route("/api/agents", agentRoutes);
   app.route("/api/approvals", approvalRoutes);
   app.route("/api/sessions", sessionRoutes);
+  app.route("/api/system", systemRoutes);
 
   app.get("/api/health", (c) => c.json({ status: "ok" }));
 

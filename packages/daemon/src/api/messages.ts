@@ -24,7 +24,9 @@ messageRoutes.post("/", async (c) => {
   }
 
   const sessionManager = getSessionManager();
-  const sessionId = await sessionManager.sendMessage(conversationId, parsed.data.content);
+  const sessionId = await sessionManager.sendMessage(conversationId, parsed.data.content, {
+    workspace: parsed.data.workspace,
+  });
 
   return c.json({ accepted: true, sessionId }, 202);
 });

@@ -13,6 +13,11 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
+      "/api/mcp-registry": {
+        target: "https://registry.modelcontextprotocol.io",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/mcp-registry/, ""),
+      },
       "/api": {
         target: "http://localhost:54321",
         changeOrigin: true,

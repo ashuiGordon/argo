@@ -10,13 +10,14 @@
     "db:init": "tsx src/db/init.ts"
   },
   "dependencies": {
+    "@anthropic-ai/claude-code": "^1.0.128",
     "@argo/shared": "workspace:*",
     "@hono/node-server": "^1.13.7",
+    "@openai/codex-sdk": "^0.133.0",
     "bcrypt": "^5.1.1",
     "better-sqlite3": "^11.7.0",
     "hono": "^4.6.14",
     "jsonwebtoken": "^9.0.2",
-    "node-pty": "1.2.0-beta.13",
     "uuid": "^11.0.3",
     "ws": "^8.18.0",
     "zod": "^3.24.1"

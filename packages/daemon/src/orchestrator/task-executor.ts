@@ -1,8 +1,10 @@
 import type { OrchestratorTask } from "./task-queue.js";
 import type { TaskExecutor } from "./scheduler.js";
-import { spawnClaudeCode } from "../providers/claude/adapter.js";
-import { spawnCodex } from "../providers/codex/adapter.js";
+import type { AdapterConfig, AdapterCallbacks, ManagedRuntime } from "../adapters/types.js";
 import { eventBus } from "../event-bus/index.js";
+import { randomUUID } from "node:crypto";
+import { getWorktreeManager, type WorktreeInfo } from "../worktree/manager.js";
+import { isGitRepo } from "../worktree/utils.js";
 
 interface AgentInfo {
   id: string;
@@ -17,39 +19,99 @@ export function createTaskExecutor(
   workspace: string,
 ): TaskExecutor {
   const agentByName = new Map(agents.map((a) => [a.name, a]));
+  const useWorktrees = isGitRepo(workspace);
+  const worktreeManager = useWorktrees ? getWorktreeManager() : null;
 
   return async (task: OrchestratorTask) => {
     const agent = agentByName.get(task.assignee) || agents[0];
-    const prompt = task.description;
+    const provider = agent.type === "codex" ? "codex" as const : "claude_code" as const;
+    const sessionId = randomUUID();
 
-    if (agent.type === "codex") {
-      return executeAgent(() => spawnCodex(conversationId, prompt, workspace));
+    let agentWorkspace = workspace;
+    let worktree: WorktreeInfo | null = null;
+
+    if (worktreeManager) {
+      try {
+        worktree = worktreeManager.create({
+          workspace,
+          sessionId,
+          agentName: agent.name,
+          conversationId,
+        });
+        agentWorkspace = worktree.path;
+      } catch {
+        // Fall back to shared workspace if worktree creation fails
+      }
     }
-    return executeAgent(() => spawnClaudeCode(conversationId, prompt, workspace, agent.system_prompt || undefined));
+
+    const config: AdapterConfig = {
+      workspace: agentWorkspace,
+      sessionId,
+      conversationId,
+      systemPrompt: agent.system_prompt || undefined,
+    };
+
+    const result = await executeWithAdapter(provider, config, task.description);
+
+    if (worktree && worktreeManager) {
+      const mergeResult = worktreeManager.merge(worktree.path);
+      worktreeManager.remove(worktree.path);
+      if (!mergeResult.success) {
+        result.output = `${result.output || ""}\n[Merge conflicts: ${mergeResult.conflicts?.join(", ")}]`;
+      }
+    }
+
+    return result;
   };
 }
 
-function executeAgent(spawn: () => { sessionId: string }): Promise<{ output?: string; tokensUsed?: number }> {
-  return new Promise((resolve) => {
-    const { sessionId } = spawn();
+async function executeWithAdapter(
+  provider: "claude_code" | "codex",
+  config: AdapterConfig,
+  prompt: string,
+): Promise<{ output?: string; tokensUsed?: number }> {
+  return new Promise(async (resolve) => {
     let lastContent = "";
+    let totalTokens = 0;
 
-    const onEvent = (event: { type: string; sessionId: string; role?: string; content?: string }) => {
-      if (event.sessionId !== sessionId) return;
-      if (event.type === "message" && event.role === "assistant") {
-        lastContent = event.content || "";
-      }
-      if (event.type === "session_end") {
-        eventBus.off("event", onEvent as never);
-        resolve({ output: lastContent || "Task completed." });
-      }
+    const callbacks: AdapterCallbacks = {
+      onEvent: (event) => {
+        eventBus.emit("event", event, 0, config.conversationId);
+        if (event.type === "message" && "role" in event && event.role === "assistant" && "content" in event) {
+          lastContent = event.content as string;
+        }
+        if (event.type === "token_usage" && "totalTokens" in event) {
+          totalTokens = event.totalTokens as number;
+        }
+      },
+      onExit: () => {
+        resolve({ output: lastContent || "Task completed.", tokensUsed: totalTokens || undefined });
+      },
     };
 
-    eventBus.on("event", onEvent as never);
-
-    setTimeout(() => {
-      eventBus.off("event", onEvent as never);
-      resolve({ output: lastContent || "Task timed out." });
+    const timeout = setTimeout(() => {
+      runtime?.terminate();
+      resolve({ output: lastContent || "Task timed out.", tokensUsed: totalTokens || undefined });
     }, 120_000);
+
+    let runtime: ManagedRuntime | undefined;
+
+    try {
+      if (provider === "claude_code") {
+        const { launchClaudeSdk } = await import("../adapters/claude/sdk-launcher.js");
+        runtime = await launchClaudeSdk(config, callbacks, prompt);
+      } else {
+        const { launchCodexSdk } = await import("../adapters/codex/sdk-launcher.js");
+        runtime = await launchCodexSdk(config, callbacks, prompt);
+      }
+    } catch (err) {
+      clearTimeout(timeout);
+      resolve({ output: `Failed to launch ${provider}: ${err}` });
+    }
+
+    callbacks.onExit = (code) => {
+      clearTimeout(timeout);
+      resolve({ output: lastContent || "Task completed.", tokensUsed: totalTokens || undefined });
+    };
   });
 }

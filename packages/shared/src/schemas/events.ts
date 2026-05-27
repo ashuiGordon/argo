@@ -132,6 +132,34 @@ export const HookEvent = BaseEvent.extend({
   hookPayload: z.record(z.unknown()),
 });
 
+export const GroupChatStateEvent = BaseEvent.extend({
+  type: z.literal("group_chat_state"),
+  state: z.enum(["moderator_thinking", "agents_working", "synthesizing", "idle"]),
+  activeAgents: z.array(z.string()).optional(),
+  round: z.number().int().optional(),
+});
+
+export const WorktreeCreatedEvent = BaseEvent.extend({
+  type: z.literal("worktree_created"),
+  agentName: z.string(),
+  branch: z.string(),
+  worktreePath: z.string(),
+});
+
+export const WorktreeMergedEvent = BaseEvent.extend({
+  type: z.literal("worktree_merged"),
+  agentName: z.string(),
+  branch: z.string(),
+  success: z.boolean(),
+  conflicts: z.array(z.string()).optional(),
+});
+
+export const ArgoPhaseChangeEvent = BaseEvent.extend({
+  type: z.literal("argo_phase_change"),
+  phase: z.string(),
+  previousPhase: z.string(),
+});
+
 export const NormalizedEvent = z.discriminatedUnion("type", [
   SessionStartEvent,
   SessionEndEvent,
@@ -146,6 +174,10 @@ export const NormalizedEvent = z.discriminatedUnion("type", [
   StreamingDeltaEvent,
   TokenUsageEvent,
   HookEvent,
+  GroupChatStateEvent,
+  WorktreeCreatedEvent,
+  WorktreeMergedEvent,
+  ArgoPhaseChangeEvent,
 ]);
 export type NormalizedEvent = z.infer<typeof NormalizedEvent>;
 
@@ -162,3 +194,7 @@ export type UsageEvent = z.infer<typeof UsageEvent>;
 export type StreamingDeltaEvent = z.infer<typeof StreamingDeltaEvent>;
 export type TokenUsageEvent = z.infer<typeof TokenUsageEvent>;
 export type HookEvent = z.infer<typeof HookEvent>;
+export type GroupChatStateEvent = z.infer<typeof GroupChatStateEvent>;
+export type WorktreeCreatedEvent = z.infer<typeof WorktreeCreatedEvent>;
+export type WorktreeMergedEvent = z.infer<typeof WorktreeMergedEvent>;
+export type ArgoPhaseChangeEvent = z.infer<typeof ArgoPhaseChangeEvent>;

@@ -4,7 +4,6 @@ import type { Server } from "node:http";
 import { verifyToken } from "../auth/index.js";
 import { eventBus } from "../event-bus/index.js";
 import { getQueries } from "../db/init.js";
-import { handlePtyInput } from "./pty-stream.js";
 import type { ClientMessage, ServerMessage } from "@argo/shared";
 import { WS_HEARTBEAT_INTERVAL_MS } from "@argo/shared";
 
@@ -91,9 +90,6 @@ function handleClientMessage(client: WsClient, msg: ClientMessage) {
       break;
     case "unsubscribe":
       client.subscriptions.delete(msg.conversationId);
-      break;
-    case "pty_input":
-      handlePtyInput(msg);
       break;
   }
 }

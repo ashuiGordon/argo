@@ -1,13 +1,11 @@
 import { getQueries } from "../db/init.js";
-import type { ManagedRuntime, SessionStatus, AdapterMode, ProviderType, TokenUsageSnapshot } from "../adapters/types.js";
+import type { ManagedRuntime, SessionStatus, ProviderType, TokenUsageSnapshot } from "../adapters/types.js";
 
 interface ActiveSession {
   sessionId: string;
   conversationId: string;
   provider: ProviderType;
-  mode: AdapterMode;
   runtime: ManagedRuntime;
-  externalId?: string;
 }
 
 const activeSessions = new Map<string, ActiveSession>();
@@ -16,11 +14,10 @@ export function registerActiveSession(
   sessionId: string,
   conversationId: string,
   provider: ProviderType,
-  mode: AdapterMode,
+  _mode: string,
   runtime: ManagedRuntime,
-  externalId?: string,
 ): void {
-  activeSessions.set(sessionId, { sessionId, conversationId, provider, mode, runtime, externalId });
+  activeSessions.set(sessionId, { sessionId, conversationId, provider, runtime });
 }
 
 export function unregisterActiveSession(sessionId: string): void {

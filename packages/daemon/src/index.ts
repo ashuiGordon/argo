@@ -4,25 +4,33 @@ import { createApi } from "./api/index.js";
 import { setupWebSocket } from "./ws/index.js";
 import { getDb } from "./db/init.js";
 import { seedAgents } from "./db/seed.js";
-import { startHookServer } from "./hook-server/index.js";
-import { startClaudeDiscovery } from "./discovery/claude-discovery.js";
+import { markCrashedSessionsOnStartup, terminateAllSessions } from "./session/session-store.js";
 
 async function main() {
   getDb();
   seedAgents();
+  markCrashedSessionsOnStartup();
 
   const app = createApi();
 
   const server = createAdaptorServer({ fetch: app.fetch, port: PORTS.DAEMON });
-  setupWebSocket(server as unknown as import("node:http").Server);
+  const wss = setupWebSocket(server as unknown as import("node:http").Server);
 
   server.listen(PORTS.DAEMON, () => {
     console.log(`Argo daemon listening on http://localhost:${PORTS.DAEMON}`);
     console.log(`WebSocket available at ws://localhost:${PORTS.DAEMON}/ws`);
   });
 
-  startHookServer();
-  startClaudeDiscovery();
+  const shutdown = () => {
+    console.log("Shutting down gracefully...");
+    terminateAllSessions();
+    wss.close();
+    server.close();
+    process.exit(0);
+  };
+
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
 }
 
 main().catch((err) => {

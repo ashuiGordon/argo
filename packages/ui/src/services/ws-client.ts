@@ -68,16 +68,6 @@ class WsClient {
     return () => this.handlers.delete(handler);
   }
 
-  onPtyOutput(sessionId: string, handler: (data: string) => void) {
-    const msgHandler: MessageHandler = (msg) => {
-      if (msg.type === "pty_output" && msg.sessionId === sessionId) {
-        handler(msg.data);
-      }
-    };
-    this.handlers.add(msgHandler);
-    return () => this.handlers.delete(msgHandler);
-  }
-
   private scheduleReconnect() {
     const delay = Math.min(
       WS_RECONNECT_BASE_MS * Math.pow(2, this.reconnectAttempts),
