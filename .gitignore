@@ -12,3 +12,4 @@ Thumbs.db
 coverage/
 *.tsbuildinfo
 packages/daemon/data/
+.argo-deploy/
