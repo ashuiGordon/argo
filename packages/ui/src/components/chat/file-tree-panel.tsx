@@ -102,6 +102,13 @@ export function FileTreePanel({ workspace, onClose }: FileTreePanelProps) {
 
   const handleActivate = useCallback(async (node: { data: FileNode }) => {
     if (node.data.type !== "file") return;
+    const ext = node.data.path.split(".").pop()?.toLowerCase() || "";
+    const binaryExts = ["pdf", "png", "jpg", "jpeg", "gif", "webp", "docx", "doc", "pptx", "ppt", "xlsx", "xls"];
+    if (binaryExts.includes(ext)) {
+      const { useFilePreviewStore } = await import("../../stores/file-preview");
+      useFilePreviewStore.getState().open(node.data.path);
+      return;
+    }
     try {
       const res = await api.system.readFile(node.data.path);
       openEditor({ filePath: res.path, content: res.content, language: res.language, mode: "readonly" });

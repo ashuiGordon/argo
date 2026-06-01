@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { getFileName } from "./utils";
+import { FilePreview } from "../../preview/file-preview";
 
 interface ReadArtifactProps {
   input: Record<string, unknown>;
@@ -7,12 +8,15 @@ interface ReadArtifactProps {
 }
 
 const MAX_LINES = 30;
+const BINARY_EXTS = ["pdf", "png", "jpg", "jpeg", "gif", "webp", "svg", "docx", "doc", "pptx", "ppt", "xlsx", "xls"];
 
 export function ReadArtifact({ input, result }: ReadArtifactProps) {
   const [expanded, setExpanded] = useState(false);
 
   const filePath = (input.file_path as string) || "unknown";
   const fileName = getFileName(filePath);
+  const ext = filePath.split(".").pop()?.toLowerCase() || "";
+  const isBinary = BINARY_EXTS.includes(ext);
   const content = result?.output || "";
   const lines = content.split("\n");
   const lineCount = lines.length;
@@ -25,6 +29,14 @@ export function ReadArtifact({ input, result }: ReadArtifactProps) {
           <span className="font-mono">{fileName}</span>
           <span>Reading...</span>
         </div>
+      </div>
+    );
+  }
+
+  if (isBinary) {
+    return (
+      <div className="mb-3 ml-6 animate-fade-in">
+        <FilePreview filePath={filePath} />
       </div>
     );
   }

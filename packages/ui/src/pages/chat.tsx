@@ -8,6 +8,7 @@ import { MessageList } from "../components/chat/message-list";
 import { MessageInput } from "../components/chat/message-input";
 import { FileTreePanel } from "../components/chat/file-tree-panel";
 import { FullscreenEditor } from "../components/editor/fullscreen-editor";
+import { FullscreenFilePreview } from "../components/preview/fullscreen-file-preview";
 import { TaskDag } from "../components/orchestrator/task-dag";
 import { NewChatComposer } from "../components/chat/new-chat-composer";
 import { AgentsToolsPanel } from "../components/agents-tools/agents-tools-panel";
@@ -154,6 +155,9 @@ export function ChatPage() {
 
       {/* Fullscreen Editor Overlay */}
       <FullscreenEditor onSendMessage={handleSend} />
+
+      {/* Fullscreen File Preview Overlay (PDF/DOCX/PPT/Images) */}
+      <FullscreenFilePreview />
     </div>
   );
 }

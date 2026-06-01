@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { api } from "../../services/api-client";
+import { FullscreenPreview } from "../preview/fullscreen-preview";
 
 interface DeployCardProps {
   deployment: {
@@ -40,9 +41,12 @@ const TARGET_LABELS: Record<string, string> = {
 
 export function DeployCard({ deployment }: DeployCardProps) {
   const [showLogs, setShowLogs] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
+  const [showFullscreen, setShowFullscreen] = useState(false);
   const { deploymentId, deployType, status, target, url, error, logs } = deployment;
   const style = STATUS_STYLES[status] || STATUS_STYLES.pending;
   const iconPath = TYPE_ICONS[deployType] || TYPE_ICONS.package;
+  const isWebPreview = (deployType === "preview" || deployType === "static") && status === "deployed" && !!url && /^https?:\/\//.test(url);
 
   return (
     <div className={`rounded-[var(--radius-md)] border border-gray-200 ${style.bg} overflow-hidden my-2`}>
@@ -101,6 +105,22 @@ export function DeployCard({ deployment }: DeployCardProps) {
               Open
             </a>
           )}
+          {isWebPreview && (
+            <button
+              onClick={() => setShowPreview(!showPreview)}
+              className="rounded-[var(--radius-sm)] border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-500 text-gray-500 hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              {showPreview ? "Hide preview" : "Preview"}
+            </button>
+          )}
+          {isWebPreview && (
+            <button
+              onClick={() => setShowFullscreen(true)}
+              className="rounded-[var(--radius-sm)] border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-500 text-gray-500 hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              Fullscreen
+            </button>
+          )}
           {logs && logs.length > 0 && (
             <button
               onClick={() => setShowLogs(!showLogs)}
@@ -119,6 +139,26 @@ export function DeployCard({ deployment }: DeployCardProps) {
             {logs.join("\n")}
           </pre>
         </div>
+      )}
+
+      {/* Inline web preview iframe */}
+      {isWebPreview && showPreview && url && (
+        <div className="border-t border-gray-200 bg-white">
+          <iframe
+            src={url}
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+            className="h-80 w-full border-0"
+            title={`Preview ${url}`}
+          />
+        </div>
+      )}
+
+      {showFullscreen && url && (
+        <FullscreenPreview
+          url={url}
+          title={url}
+          onClose={() => setShowFullscreen(false)}
+        />
       )}
     </div>
   );
