@@ -11,6 +11,53 @@ export function initWsHandler() {
       const activeId = store.activeConversationId;
       if (activeId) {
         const payload = msg.payload as NormalizedEvent;
+
+        // Handle streaming messages — append delta content to last message
+        if (payload.type === "message" && (payload as { streaming?: boolean }).streaming) {
+          const msgPayload = payload as { sessionId: string; content: string; final: boolean };
+          const events = store.events.get(activeId) || [];
+          const lastMsg = [...events].reverse().find(
+            (e) => e.payload.type === "message" && e.payload.sessionId === msgPayload.sessionId && (e.payload as { role: string }).role === "assistant",
+          );
+          if (lastMsg && (lastMsg.payload as { streaming?: boolean }).streaming) {
+            // Append delta to existing streaming message
+            (lastMsg.payload as { content: string }).content += msgPayload.content;
+            const newMap = new Map(store.events);
+            newMap.set(activeId, [...events]);
+            useConversationsStore.setState({ events: newMap });
+          } else {
+            // Start new streaming message
+            store.addEvent(activeId, {
+              sequence: msg.sequence,
+              type: payload.type,
+              payload,
+              timestamp: new Date().toISOString(),
+            });
+          }
+          return;
+        }
+
+        // For final assistant messages, replace the streaming placeholder
+        if (payload.type === "message" && (payload as { role: string }).role === "assistant" && !(payload as { streaming?: boolean }).streaming) {
+          const events = store.events.get(activeId) || [];
+          const streamingIdx = events.findIndex(
+            (e) => e.payload.type === "message" && e.payload.sessionId === payload.sessionId && (e.payload as { streaming?: boolean }).streaming,
+          );
+          if (streamingIdx >= 0) {
+            // Replace streaming message with final
+            events[streamingIdx] = {
+              sequence: msg.sequence,
+              type: payload.type,
+              payload,
+              timestamp: new Date().toISOString(),
+            };
+            const newMap = new Map(store.events);
+            newMap.set(activeId, [...events]);
+            useConversationsStore.setState({ events: newMap });
+            return;
+          }
+        }
+
         store.addEvent(activeId, {
           sequence: msg.sequence,
           type: payload.type,

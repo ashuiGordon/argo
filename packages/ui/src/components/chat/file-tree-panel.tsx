@@ -3,6 +3,7 @@ import { Tree } from "react-arborist";
 import type { NodeRendererProps } from "react-arborist";
 import { api } from "../../services/api-client";
 import { useEditorStore } from "../../stores/editor";
+import { useWorkspacePanelStore } from "../../stores/workspace-panel";
 
 interface FileNode {
   id: string;
@@ -14,7 +15,8 @@ interface FileNode {
 
 interface FileTreePanelProps {
   workspace: string;
-  onClose: () => void;
+  onClose?: () => void;
+  embedded?: boolean;
 }
 
 function transformTree(nodes: Array<{ name: string; path: string; type: "file" | "directory"; children?: unknown[] }>): FileNode[] {
@@ -79,7 +81,7 @@ function Node({ node, style }: NodeRendererProps<FileNode>) {
   );
 }
 
-export function FileTreePanel({ workspace, onClose }: FileTreePanelProps) {
+export function FileTreePanel({ workspace, onClose, embedded }: FileTreePanelProps) {
   const [tree, setTree] = useState<FileNode[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -112,13 +114,14 @@ export function FileTreePanel({ workspace, onClose }: FileTreePanelProps) {
     try {
       const res = await api.system.readFile(node.data.path);
       openEditor({ filePath: res.path, content: res.content, language: res.language, mode: "readonly" });
+      useWorkspacePanelStore.getState().setTab("files");
     } catch {
       // silently fail for unreadable files
     }
   }, [openEditor]);
 
   return (
-    <aside className="w-[240px] shrink-0 border-l border-gray-200 bg-[#f8f9fa] flex flex-col overflow-hidden">
+    <aside className={`${embedded ? "h-full" : "w-[240px] shrink-0 border-l border-gray-200"} bg-[#f8f9fa] flex flex-col overflow-hidden`}>
       <div className="flex items-center justify-between border-b border-gray-200 px-3 py-2.5">
         <div className="flex items-center gap-2 min-w-0">
           <svg className="h-3.5 w-3.5 shrink-0 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -128,14 +131,16 @@ export function FileTreePanel({ workspace, onClose }: FileTreePanelProps) {
             {workspaceName}
           </span>
         </div>
-        <button
-          onClick={onClose}
-          className="shrink-0 rounded p-0.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 cursor-pointer"
-        >
-          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        {onClose && !embedded && (
+          <button
+            onClick={onClose}
+            className="shrink-0 rounded p-0.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 cursor-pointer"
+          >
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
       </div>
 
       <div className="flex-1 overflow-hidden">

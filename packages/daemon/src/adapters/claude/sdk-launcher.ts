@@ -1,5 +1,7 @@
 import { query } from "@anthropic-ai/claude-code";
 import { execSync } from "node:child_process";
+import { readdirSync, statSync } from "node:fs";
+import { resolve, extname, basename } from "node:path";
 import type { NormalizedEvent } from "@argo/shared";
 import type { AdapterConfig, AdapterCallbacks, ManagedRuntime, TokenUsageSnapshot } from "../types.js";
 import { classifyRisk } from "../../approval/risk-classifier.js";
@@ -44,6 +46,47 @@ interface SdkSessionState {
   model: string | null;
   cumulativeUsage: TokenUsageSnapshot;
   pendingMessage: { content: string; resolve: () => void; reject: (err: Error) => void } | null;
+  knownFiles: Set<string>;
+  lastScanTime: number;
+}
+
+const PREVIEWABLE_EXTS = new Set(["html", "htm", "pdf", "png", "jpg", "jpeg", "gif", "webp", "svg", "docx", "doc", "pptx", "ppt", "xlsx", "xls"]);
+
+function scanWorkspaceFiles(workspace: string): Map<string, number> {
+  const files = new Map<string, number>();
+  try {
+    const entries = readdirSync(workspace, { recursive: true, withFileTypes: false }) as string[];
+    for (const entry of entries) {
+      const fullPath = resolve(workspace, entry);
+      try {
+        const ext = extname(entry).slice(1).toLowerCase();
+        if (PREVIEWABLE_EXTS.has(ext)) {
+          const stat = statSync(fullPath);
+          if (stat.isFile()) {
+            files.set(fullPath, stat.mtimeMs);
+          }
+        }
+      } catch { /* skip */ }
+    }
+  } catch { /* workspace may not exist */ }
+  return files;
+}
+
+function scanForNewArtifacts(workspace: string, knownFiles: Set<string>, lastScanTime: number): { files: Array<{ filePath: string; fileName: string; ext: string }>; scanTime: number } {
+  const currentFiles = scanWorkspaceFiles(workspace);
+  const newFiles: Array<{ filePath: string; fileName: string; ext: string }> = [];
+  const now = Date.now();
+
+  for (const [filePath, mtime] of currentFiles) {
+    if (!knownFiles.has(filePath) || mtime > lastScanTime) {
+      knownFiles.add(filePath);
+      const fileName = basename(filePath);
+      const ext = extname(filePath).slice(1).toLowerCase();
+      newFiles.push({ filePath, fileName, ext });
+    }
+  }
+
+  return { files: newFiles, scanTime: now };
 }
 
 export async function launchClaudeSdk(
@@ -65,6 +108,8 @@ export async function launchClaudeSdk(
       cachedInputTokens: 0,
     },
     pendingMessage: null,
+    knownFiles: new Set(scanWorkspaceFiles(workspace).keys()),
+    lastScanTime: Date.now(),
   };
 
   callbacks.onEvent({
@@ -191,6 +236,7 @@ async function runQuery(
         const initMsg = sdkMsg as { session_id?: string; model?: string };
         if (initMsg.session_id) {
           state.claudeSessionId = initMsg.session_id;
+          callbacks.onProviderSessionId?.(initMsg.session_id);
         }
         if (initMsg.model) {
           state.model = initMsg.model;
@@ -198,12 +244,56 @@ async function runQuery(
         continue;
       }
 
+      // Content block streaming — emit partial text as it arrives
+      if (sdkType === "content_block_start") {
+        const block = sdkMsg as { index?: number; content_block?: { type: string; text?: string } };
+        if (block.content_block?.type === "text") {
+          const event: NormalizedEvent = {
+            type: "message",
+            sessionId,
+            role: "assistant",
+            content: "",
+            streaming: true,
+            final: false,
+          };
+          callbacks.onEvent(event);
+        }
+        continue;
+      }
+
+      if (sdkType === "content_block_delta") {
+        const delta = sdkMsg as { delta?: { type: string; text?: string } };
+        if (delta.delta?.type === "text_delta" && delta.delta.text) {
+          const event: NormalizedEvent = {
+            type: "message",
+            sessionId,
+            role: "assistant",
+            content: delta.delta.text,
+            streaming: true,
+            final: false,
+          };
+          callbacks.onEvent(event);
+        }
+        continue;
+      }
+
+      if (sdkType === "content_block_stop") {
+        continue;
+      }
+
       // Assistant message — text and tool_use blocks
       if (sdkType === "assistant") {
-        const msg = sdkMsg as { message?: { content?: Array<{ type: string; text?: string; id?: string; name?: string; input?: Record<string, unknown> }> } };
+        const msg = sdkMsg as { message?: { content?: Array<{ type: string; text?: string; thinking?: string; id?: string; name?: string; input?: Record<string, unknown> }> } };
         if (msg.message?.content) {
           for (const block of msg.message.content) {
-            if (block.type === "text" && block.text) {
+            if (block.type === "thinking" && block.thinking) {
+              const event: NormalizedEvent = {
+                type: "thinking",
+                sessionId,
+                content: block.thinking,
+              };
+              callbacks.onEvent(event);
+            } else if (block.type === "text" && block.text) {
               const event: NormalizedEvent = {
                 type: "message",
                 sessionId,
@@ -311,6 +401,17 @@ async function runQuery(
           state.pendingMessage = null;
         }
 
+        // Scan workspace for new previewable artifacts
+        const scanResult = scanForNewArtifacts(workspace, state.knownFiles, state.lastScanTime);
+        state.lastScanTime = scanResult.scanTime;
+        if (scanResult.files.length > 0) {
+          callbacks.onEvent({
+            type: "artifacts_detected",
+            sessionId,
+            files: scanResult.files,
+          });
+        }
+
         continue;
       }
     }
@@ -334,15 +435,15 @@ async function runQuery(
       state.pendingMessage.reject(error);
       state.pendingMessage = null;
     }
-  } finally {
-    state.active = false;
 
+    // Only mark session as dead on errors or aborts
+    state.active = false;
     callbacks.onEvent({
       type: "session_end",
       sessionId,
-      exitCode: 0,
+      exitCode: error.name === "AbortError" ? 0 : 1,
     });
-    callbacks.onExit(0);
+    callbacks.onExit(error.name === "AbortError" ? 0 : 1);
   }
 }
 

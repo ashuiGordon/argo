@@ -69,7 +69,7 @@ export function MyAgentsTab() {
       {(showForm || editingAgent) && (
         <div className="mb-6 rounded-[var(--radius-md)] border border-gray-200 bg-gray-50 p-5 animate-slide-up">
           <h2 className="mb-3 text-[15px] font-500 text-gray-900">
-            {editingAgent ? `Edit ${editingAgent.name}` : "New Agent"}
+            {editingAgent ? `编辑 ${editingAgent.name}` : "新建智能体"}
           </h2>
           <AgentForm
             agentId={editingAgent?.id}
@@ -94,7 +94,7 @@ export function MyAgentsTab() {
             } : undefined}
             onSubmit={editingAgent ? handleUpdate : handleCreate}
             onCancel={() => { setShowForm(false); setEditingAgent(null); }}
-            submitLabel={editingAgent ? "Save" : "Create"}
+            submitLabel={editingAgent ? "保存" : "创建"}
           />
         </div>
       )}

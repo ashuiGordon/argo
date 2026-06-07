@@ -25,10 +25,10 @@ export function PreviewCard({ html, url, title, height = 256, onFullscreen }: Pr
   return (
     <div className="my-2 overflow-hidden rounded-[var(--radius-sm)] border border-gray-200 bg-white">
       <div className="flex items-center justify-between border-b border-gray-200 px-3 py-2">
-        <span className="text-xs font-medium text-gray-600 truncate" title={title}>{title || "Preview"}</span>
+        <span className="text-xs font-medium text-gray-600 truncate" title={title}>{title || "预览"}</span>
         <div className="flex gap-2 shrink-0">
           <span className="text-[10px] text-gray-400">
-            {loaded ? "Loaded" : "Loading..."}
+            {loaded ? "已加载" : "加载中..."}
           </span>
           {url && (
             <a
@@ -56,7 +56,7 @@ export function PreviewCard({ html, url, title, height = 256, onFullscreen }: Pr
           sandbox={sandbox}
           className="h-full w-full border-0"
           onLoad={() => setLoaded(true)}
-          title={title || "Preview"}
+          title={title || "预览"}
         />
       </div>
     </div>

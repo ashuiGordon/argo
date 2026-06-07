@@ -361,3 +361,24 @@ systemRoutes.get("/worktrees", (c) => {
     git: gitWorktrees,
   });
 });
+
+systemRoutes.get("/git-log", (c) => {
+  const workspace = c.req.query("workspace");
+  if (!workspace) {
+    return c.json({ error: { code: "VALIDATION_ERROR", message: "workspace query parameter required" } }, 400);
+  }
+  const limit = parseInt(c.req.query("limit") || "20", 10);
+  try {
+    const output = execSync(
+      `git log --format="%H|||%s|||%an|||%ar" -n ${limit}`,
+      { cwd: workspace, encoding: "utf-8", timeout: 5000 }
+    );
+    const commits = output.trim().split("\n").filter(Boolean).map((line) => {
+      const [hash, message, author, date] = line.split("|||");
+      return { hash, message, author, date };
+    });
+    return c.json({ commits });
+  } catch {
+    return c.json({ commits: [] });
+  }
+});

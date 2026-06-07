@@ -114,11 +114,11 @@ export class SessionManager {
     // Check for a resumable session in DB
     const queries = getQueries();
     const dbSession = queries.getDb()
-      .prepare("SELECT session_id, status FROM sessions WHERE conversation_id = ? AND provider = ? ORDER BY created_at DESC LIMIT 1")
-      .get(conversationId, provider) as { session_id: string; status: string } | undefined;
+      .prepare("SELECT session_id, status, provider_session_id FROM sessions WHERE conversation_id = ? AND provider = ? ORDER BY created_at DESC LIMIT 1")
+      .get(conversationId, provider) as { session_id: string; status: string; provider_session_id: string | null } | undefined;
 
-    const resumeSessionId = dbSession && (dbSession.status === "stopped" || dbSession.status === "crashed")
-      ? dbSession.session_id
+    const resumeSessionId = dbSession && (dbSession.status === "stopped" || dbSession.status === "crashed") && dbSession.provider_session_id
+      ? dbSession.provider_session_id
       : undefined;
 
     // Spawn new session
@@ -158,6 +158,11 @@ export class SessionManager {
         import("../memory/summarizer.js").then(({ summarizeSession }) =>
           summarizeSession(sessionId, conversationId).catch(() => {})
         ).catch(() => {});
+      },
+      onProviderSessionId: (providerSessionId) => {
+        queries.getDb()
+          .prepare("UPDATE sessions SET provider_session_id = ? WHERE session_id = ?")
+          .run(providerSessionId, sessionId);
       },
     };
 

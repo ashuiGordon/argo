@@ -139,6 +139,10 @@ export const api = {
         git: Array<{ path: string; branch: string; head: string }>;
       }>(`/system/worktrees${params}`);
     },
+    gitLog: (workspace: string, limit = 20) => {
+      const params = `?workspace=${encodeURIComponent(workspace)}&limit=${limit}`;
+      return request<{ commits: Array<{ hash: string; message: string; author: string; date: string }> }>(`/system/git-log${params}`);
+    },
   },
   deployments: {
     create: (data: {

@@ -142,7 +142,7 @@ export function McpMarketplaceTab() {
             type="text"
             value={searchQuery}
             onChange={(e) => handleSearchInput(e.target.value)}
-            placeholder="Search MCP servers from registry..."
+            placeholder="搜索 MCP 服务..."
             className="w-full rounded-[var(--radius-md)] border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-[13px] text-gray-900 placeholder-gray-400 focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-300"
           />
         </div>
@@ -161,7 +161,7 @@ export function McpMarketplaceTab() {
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
-              {cat === "all" ? "All" : cat.replace("-", " ")}
+              {cat === "all" ? "全部" : cat.replace("-", " ")}
             </button>
           ))}
         </div>
@@ -255,14 +255,14 @@ function FeaturedServerCard({ server, installed, onInstall }: { server: Featured
       </div>
       {installed ? (
         <span className="shrink-0 rounded-[var(--radius-pill)] bg-green-50 px-2.5 py-1 text-[11px] font-500 text-green-600">
-          Installed
+          已安装
         </span>
       ) : (
         <button
           onClick={onInstall}
           className="shrink-0 rounded-[var(--radius-pill)] border border-gray-200 px-3 py-1 text-[11px] font-500 text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
         >
-          Install
+          安装
         </button>
       )}
     </div>
@@ -294,14 +294,14 @@ function RegistryServerCard({ entry, installed, onInstall }: { entry: RegistrySe
       </div>
       {installed ? (
         <span className="shrink-0 rounded-[var(--radius-pill)] bg-green-50 px-2.5 py-1 text-[11px] font-500 text-green-600">
-          Installed
+          已安装
         </span>
       ) : (
         <button
           onClick={onInstall}
           className="shrink-0 rounded-[var(--radius-pill)] border border-gray-200 px-3 py-1 text-[11px] font-500 text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
         >
-          Install
+          安装
         </button>
       )}
     </div>
@@ -355,7 +355,7 @@ function InstallModal({
                   type={v.name.toLowerCase().includes("key") || v.name.toLowerCase().includes("secret") || v.name.toLowerCase().includes("token") ? "password" : "text"}
                   value={envInputs[v.name] || ""}
                   onChange={(e) => onEnvChange(v.name, e.target.value)}
-                  placeholder={`Enter ${v.name}`}
+                  placeholder={`输入 ${v.name}`}
                   className="w-full rounded border border-gray-200 bg-white px-2.5 py-1.5 text-[12px] text-gray-900 placeholder-gray-400 focus:border-gray-300 focus:outline-none"
                 />
               </div>

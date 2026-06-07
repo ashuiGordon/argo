@@ -5,6 +5,7 @@ export type { FileVersion };
 
 interface EditorState {
   isOpen: boolean;
+  splitMode: boolean;
   mode: "edit" | "diff" | "readonly";
   filePath: string;
   content: string;
@@ -18,10 +19,12 @@ interface EditorStore extends EditorState {
   openDiff: (opts: { filePath: string; original: string; modified: string; language: string; versions?: FileVersion[] }) => void;
   close: () => void;
   setContent: (content: string) => void;
+  setSplitMode: (splitMode: boolean) => void;
 }
 
 export const useEditorStore = create<EditorStore>((set) => ({
   isOpen: false,
+  splitMode: true,
   mode: "readonly",
   filePath: "",
   content: "",
@@ -38,4 +41,6 @@ export const useEditorStore = create<EditorStore>((set) => ({
   close: () => set({ isOpen: false }),
 
   setContent: (content) => set({ content }),
+
+  setSplitMode: (splitMode) => set({ splitMode }),
 }));

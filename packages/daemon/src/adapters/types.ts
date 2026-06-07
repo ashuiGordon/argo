@@ -40,6 +40,7 @@ export interface AdapterCallbacks {
   onEvent(event: NormalizedEvent): void;
   onExit(code: number | null): void;
   onUsageUpdate?(usage: TokenUsageSnapshot): void;
+  onProviderSessionId?(providerSessionId: string): void;
 }
 
 export interface Adapter {

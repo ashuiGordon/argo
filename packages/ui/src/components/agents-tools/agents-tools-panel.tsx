@@ -10,9 +10,9 @@ interface AgentsToolsPanelProps {
 type TabId = "agents" | "mcp" | "skills";
 
 const tabs: Array<{ id: TabId; label: string }> = [
-  { id: "agents", label: "My Agents" },
-  { id: "mcp", label: "MCP Marketplace" },
-  { id: "skills", label: "Skills" },
+  { id: "agents", label: "我的智能体" },
+  { id: "mcp", label: "MCP 市场" },
+  { id: "skills", label: "技能" },
 ];
 
 export function AgentsToolsPanel({ onClose }: AgentsToolsPanelProps) {
@@ -23,7 +23,7 @@ export function AgentsToolsPanel({ onClose }: AgentsToolsPanelProps) {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
         <h1 className="font-display text-[20px] font-500 tracking-[-0.2px] text-gray-900">
-          Agents & Tools
+          智能体 & 工具
         </h1>
         <button
           onClick={onClose}

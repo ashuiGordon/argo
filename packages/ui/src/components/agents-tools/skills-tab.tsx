@@ -76,7 +76,7 @@ export function SkillsTab() {
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
-            {cat === "all" ? "All" : cat}
+            {cat === "all" ? "全部" : cat}
           </button>
         ))}
       </div>
@@ -118,7 +118,7 @@ export function SkillsTab() {
                 onClick={() => setInstallTarget(skill)}
                 className="shrink-0 rounded-[var(--radius-pill)] border border-gray-200 px-3 py-1 text-[11px] font-500 text-gray-700 transition-colors hover:bg-gray-100 cursor-pointer"
               >
-                {installed ? "Add to..." : "Install"}
+                {installed ? "添加到..." : "安装"}
               </button>
             </div>
           );

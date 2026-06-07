@@ -3,6 +3,7 @@ import { api } from "../../services/api-client";
 import { useConversationsStore } from "../../stores/conversations";
 import { getAgentLogo, getAgentAvatar, getAgentDisplayAvatar } from "../../lib/agent-logos";
 import { AgentAvatar } from "../shared/agent-avatar";
+import { MentionPopup, type MentionItem } from "./mention-popup";
 
 interface AgentOption {
   id: string;
@@ -22,6 +23,8 @@ export function NewChatComposer() {
   const [sending, setSending] = useState(false);
   const [mode, setMode] = useState<"chat" | "team">("chat");
   const [teamMode, setTeamMode] = useState<"auto" | "custom">("auto");
+  const [mentionPopup, setMentionPopup] = useState<{ query: string } | null>(null);
+  const [mentionIndex, setMentionIndex] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const setActiveConversation = useConversationsStore((s) => s.setActiveConversation);
@@ -105,8 +108,56 @@ export function NewChatComposer() {
     }
   }
 
+  function handleChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const val = e.target.value;
+    setMessage(val);
+    const cursorPos = e.target.selectionStart ?? val.length;
+    const before = val.slice(0, cursorPos);
+    const atMatch = before.match(/@([^\s@]*)$/);
+    if (atMatch) {
+      setMentionPopup({ query: atMatch[1] });
+      setMentionIndex(0);
+    } else {
+      setMentionPopup(null);
+    }
+  }
+
+  const mentionItems: MentionItem[] = mentionPopup
+    ? agents
+        .filter((a) => !mentionPopup.query || a.name.toLowerCase().includes(mentionPopup.query.toLowerCase()))
+        .slice(0, 8)
+        .map((a) => ({ id: a.id, label: a.name, detail: a.type, iconColor: a.avatarColor }))
+    : [];
+
+  function handleMentionSelect(item: MentionItem) {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      const cursorPos = textarea.selectionStart;
+      const before = message.slice(0, cursorPos);
+      const triggerMatch = before.match(/@([^\s@]*)$/);
+      if (triggerMatch) {
+        const start = before.length - triggerMatch[0].length;
+        const newValue = message.slice(0, start) + `@${item.label} ` + message.slice(cursorPos);
+        setMessage(newValue);
+        setTimeout(() => {
+          const newPos = start + item.label.length + 2;
+          textarea.selectionStart = newPos;
+          textarea.selectionEnd = newPos;
+          textarea.focus();
+        }, 0);
+      }
+    }
+    setMentionPopup(null);
+  }
+
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (mentionPopup && mentionItems.length > 0) {
+      if (e.key === "ArrowDown") { e.preventDefault(); setMentionIndex((i) => (i + 1) % mentionItems.length); return; }
+      if (e.key === "ArrowUp") { e.preventDefault(); setMentionIndex((i) => (i - 1 + mentionItems.length) % mentionItems.length); return; }
+      if (e.key === "Enter") { e.preventDefault(); handleMentionSelect(mentionItems[mentionIndex]); return; }
+      if (e.key === "Escape") { e.preventDefault(); setMentionPopup(null); return; }
+    }
+    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
       handleSubmit();
     }
@@ -172,14 +223,23 @@ export function NewChatComposer() {
         {/* Composer box */}
         <div className="rounded-[var(--radius-lg)] border border-gray-200 bg-white shadow-sm transition-colors focus-within:border-gray-300 focus-within:shadow-md">
           {/* Textarea */}
-          <div className="px-4 pt-4 pb-2">
+          <div className="px-4 pt-4 pb-2 relative">
+            {mentionPopup && (
+              <MentionPopup
+                items={mentionItems}
+                activeIndex={mentionIndex}
+                onSelect={handleMentionSelect}
+                onClose={() => setMentionPopup(null)}
+                type="agent"
+              />
+            )}
             <textarea
               ref={textareaRef}
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={handleChange}
               onKeyDown={handleKeyDown}
               onInput={handleInput}
-              placeholder="Do anything"
+              placeholder="输入任务描述，@可指定智能体"
               rows={2}
               className="w-full resize-none bg-transparent text-[15px] text-gray-900 placeholder-gray-400 focus:outline-none"
             />

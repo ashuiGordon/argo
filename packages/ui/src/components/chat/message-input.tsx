@@ -190,7 +190,7 @@ export function MessageInput({ onSend, disabled, workspace, conversationId, sess
         return;
       }
     }
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
       handleSubmit();
     }
@@ -341,7 +341,7 @@ export function MessageInput({ onSend, disabled, workspace, conversationId, sess
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
                 onInput={handleInput}
-                placeholder={pendingContext ? "Describe the modification..." : "Message…"}
+                placeholder={pendingContext ? "描述修改内容..." : "输入消息…"}
                 disabled={disabled}
                 rows={2}
                 className="w-full max-h-[200px] resize-none bg-transparent text-[14px] text-gray-900 placeholder-gray-400 focus:outline-none leading-6"
@@ -354,7 +354,7 @@ export function MessageInput({ onSend, disabled, workspace, conversationId, sess
                 <button
                   onClick={handleAttachClick}
                   className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600 cursor-pointer"
-                  title="Attach file"
+                  title="上传附件"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
@@ -376,7 +376,7 @@ export function MessageInput({ onSend, disabled, workspace, conversationId, sess
                       ? "bg-purple-100 text-purple-600"
                       : "text-gray-400 hover:bg-gray-200 hover:text-gray-600"
                   }`}
-                  title="Mention agent (@)"
+                  title="提及智能体 (@)"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 10-2.636 6.364M16.5 12V8.25" />
@@ -399,20 +399,12 @@ export function MessageInput({ onSend, disabled, workspace, conversationId, sess
                         ? "bg-blue-100 text-blue-600"
                         : "text-gray-400 hover:bg-gray-200 hover:text-gray-600"
                     }`}
-                    title="Reference file (#)"
+                    title="引用文件 (#)"
                   >
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5" />
                     </svg>
                   </button>
-                )}
-                {/* Deploy button */}
-                {workspace && conversationId && (
-                  <DeployMenu
-                    conversationId={conversationId}
-                    workspace={workspace}
-                    sessionId={sessionId}
-                  />
                 )}
               </div>
               {/* Send button */}

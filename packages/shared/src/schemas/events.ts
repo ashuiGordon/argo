@@ -172,6 +172,20 @@ export const DeployStatusEvent = BaseEvent.extend({
   logs: z.array(z.string()).optional(),
 });
 
+export const ThinkingEvent = BaseEvent.extend({
+  type: z.literal("thinking"),
+  content: z.string(),
+});
+
+export const ArtifactsDetectedEvent = BaseEvent.extend({
+  type: z.literal("artifacts_detected"),
+  files: z.array(z.object({
+    filePath: z.string(),
+    fileName: z.string(),
+    ext: z.string(),
+  })),
+});
+
 export const NormalizedEvent = z.discriminatedUnion("type", [
   SessionStartEvent,
   SessionEndEvent,
@@ -191,6 +205,8 @@ export const NormalizedEvent = z.discriminatedUnion("type", [
   WorktreeMergedEvent,
   TeamPhaseChangeEvent,
   DeployStatusEvent,
+  ThinkingEvent,
+  ArtifactsDetectedEvent,
 ]);
 export type NormalizedEvent = z.infer<typeof NormalizedEvent>;
 

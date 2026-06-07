@@ -4,12 +4,12 @@ import { useEditorStore } from "../../stores/editor";
 import { VersionTimeline } from "./version-timeline";
 import { getFileName } from "../chat/artifacts/utils";
 
-interface FullscreenEditorProps {
+interface SplitEditorProps {
   onSendMessage?: (content: string) => void;
 }
 
-export function FullscreenEditor({ onSendMessage }: FullscreenEditorProps) {
-  const { isOpen, mode, filePath, content, original, language, versions, close, setContent, splitMode } =
+export function SplitEditor({ onSendMessage }: SplitEditorProps) {
+  const { isOpen, mode, filePath, content, original, language, versions, close, setContent, setSplitMode } =
     useEditorStore();
   const [copied, setCopied] = useState(false);
   const [activeVersionIdx, setActiveVersionIdx] = useState<number | null>(null);
@@ -34,58 +34,73 @@ export function FullscreenEditor({ onSendMessage }: FullscreenEditorProps) {
     setContent(version.content);
   }, [versions, setContent]);
 
-  if (!isOpen || splitMode) return null;
+  const handleFullscreen = useCallback(() => {
+    setSplitMode(false);
+  }, [setSplitMode]);
+
+  if (!isOpen) return null;
 
   const fileName = getFileName(filePath);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-white">
+    <div className="flex h-full flex-col bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
-        <div className="flex items-center gap-3">
-          <span className="font-mono text-sm text-gray-700" title={filePath}>
+      <div className="flex items-center justify-between border-b border-gray-200 px-3 py-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="font-mono text-xs text-gray-700 truncate" title={filePath}>
             {fileName}
           </span>
-          <span className="rounded-[3px] bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">
+          <span className="rounded-[3px] bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 shrink-0">
             {language}
           </span>
-          <span className={`rounded-[3px] px-2 py-0.5 text-[10px] font-medium ${
+          <span className={`rounded-[3px] px-1.5 py-0.5 text-[10px] font-medium shrink-0 ${
             mode === "diff"
               ? "bg-purple-50 text-purple-600"
               : mode === "readonly"
                 ? "bg-gray-100 text-gray-500"
                 : "bg-green-50 text-green-600"
           }`}>
-            {mode === "diff" ? "差异" : mode === "readonly" ? "只读" : "编辑中"}
+            {mode === "diff" ? "Diff" : mode === "readonly" ? "Read-only" : "Editing"}
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={handleCopy}
-            className="rounded-[var(--radius-sm)] border border-gray-300 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 cursor-pointer"
+            className="rounded-[var(--radius-sm)] border border-gray-200 px-2 py-1 text-[11px] text-gray-600 hover:bg-gray-50 cursor-pointer"
           >
-            {copied ? "已复制!" : "复制"}
+            {copied ? "Copied!" : "Copy"}
           </button>
           {mode === "edit" && onSendMessage && (
             <button
               onClick={handleSaveAndSend}
-              className="rounded-[var(--radius-sm)] bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700 cursor-pointer"
+              className="rounded-[var(--radius-sm)] bg-blue-600 px-2 py-1 text-[11px] text-white hover:bg-blue-700 cursor-pointer"
             >
-              保存并发送
+              Save & Send
             </button>
           )}
           <button
-            onClick={close}
-            className="rounded-[var(--radius-sm)] border border-gray-300 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 cursor-pointer"
+            onClick={handleFullscreen}
+            className="rounded-[var(--radius-sm)] border border-gray-200 px-2 py-1 text-[11px] text-gray-600 hover:bg-gray-50 cursor-pointer"
+            title="Fullscreen"
           >
-            关闭
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+            </svg>
+          </button>
+          <button
+            onClick={close}
+            className="rounded-[var(--radius-sm)] border border-gray-200 px-2 py-1 text-[11px] text-gray-600 hover:bg-gray-50 cursor-pointer"
+            title="Close"
+          >
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
       </div>
 
       {/* Body */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Editor */}
         <div className="flex-1">
           {mode === "diff" && original !== undefined ? (
             <MonacoDiff
@@ -120,7 +135,6 @@ export function FullscreenEditor({ onSendMessage }: FullscreenEditorProps) {
           )}
         </div>
 
-        {/* Version Timeline (if versions available) */}
         {versions && versions.length > 1 && (
           <VersionTimeline
             versions={versions}

@@ -23,7 +23,7 @@ export function ReadArtifact({ input, result }: ReadArtifactProps) {
 
   if (!result) {
     return (
-      <div className="mb-3 ml-6 animate-fade-in rounded-[var(--radius-sm)] border border-gray-200 bg-gray-50 px-3 py-2">
+      <div className="animate-fade-in rounded-[var(--radius-sm)] border border-gray-200 bg-gray-50 px-3 py-2">
         <div className="flex items-center gap-2 text-xs text-gray-500">
           <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-blue-400" />
           <span className="font-mono">{fileName}</span>
@@ -35,14 +35,14 @@ export function ReadArtifact({ input, result }: ReadArtifactProps) {
 
   if (isBinary) {
     return (
-      <div className="mb-3 ml-6 animate-fade-in">
+      <div className="animate-fade-in">
         <FilePreview filePath={filePath} />
       </div>
     );
   }
 
   return (
-    <div className="mb-3 ml-6 animate-fade-in overflow-hidden rounded-[var(--radius-sm)] border border-gray-200 bg-white">
+    <div className="animate-fade-in overflow-hidden rounded-[var(--radius-sm)] border border-gray-200 bg-white">
       <button
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between border-b border-gray-200 bg-gray-50 px-3 py-2 cursor-pointer"

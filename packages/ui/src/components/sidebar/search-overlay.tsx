@@ -38,7 +38,7 @@ export function SearchOverlay({ onClose }: SearchOverlayProps) {
   }, [setActiveConversation, onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20" onClick={onClose}>
       <div
         className="w-full max-w-xl rounded-[var(--radius-lg)] border border-gray-200 bg-white shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}

@@ -76,6 +76,7 @@ export function initializeSchema(db: Database.Database): void {
       workspace TEXT NOT NULL,
       status TEXT NOT NULL CHECK(status IN ('starting', 'running', 'stopped', 'crashed')) DEFAULT 'starting',
       pid INTEGER,
+      provider_session_id TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
@@ -188,6 +189,11 @@ export function initializeSchema(db: Database.Database): void {
   }
   if (!agentCols.some((c) => c.name === "avatar_url")) {
     db.exec("ALTER TABLE agents ADD COLUMN avatar_url TEXT");
+  }
+
+  const sessionCols = db.prepare("PRAGMA table_info(sessions)").all() as Array<{ name: string }>;
+  if (!sessionCols.some((c) => c.name === "provider_session_id")) {
+    db.exec("ALTER TABLE sessions ADD COLUMN provider_session_id TEXT");
   }
 }
 

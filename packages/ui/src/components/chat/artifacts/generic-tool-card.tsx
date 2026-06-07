@@ -10,7 +10,7 @@ export function GenericToolCard({ toolUse }: GenericToolCardProps) {
   const hasInput = toolUse.input && Object.keys(toolUse.input).length > 0;
 
   return (
-    <div className="mb-3 ml-6 animate-fade-in rounded-[var(--radius-sm)] border-l-2 border-l-blue-500 border border-gray-200 bg-gray-50 px-3 py-2">
+    <div className="animate-fade-in rounded-[var(--radius-sm)] border-l-2 border-l-blue-500 border border-gray-200 bg-gray-50 px-3 py-2">
       <button
         onClick={() => hasInput && setExpanded(!expanded)}
         className={`flex w-full items-center gap-2 text-[12px] ${hasInput ? "cursor-pointer" : ""}`}

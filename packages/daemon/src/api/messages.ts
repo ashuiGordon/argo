@@ -23,6 +23,14 @@ messageRoutes.post("/", async (c) => {
     return c.json({ error: { code: "NOT_FOUND", message: "Conversation not found" } }, 404);
   }
 
+  // Auto-set title from first user message if title is still default (agent name)
+  const agents = queries.getConversationAgents(conversationId);
+  const defaultTitle = agents.map((a: { name: string }) => a.name).join(", ");
+  if (conv.title === defaultTitle || conv.title === "New Chat") {
+    const msgTitle = parsed.data.content.slice(0, 50).replace(/\n/g, " ");
+    queries.updateConversation(conversationId, { title: msgTitle });
+  }
+
   const sessionManager = getSessionManager();
   const sessionId = await sessionManager.sendMessage(conversationId, parsed.data.content, {
     workspace: parsed.data.workspace,
