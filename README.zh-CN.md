@@ -158,4 +158,4 @@ pnpm format     # Prettier 格式化
 
 ## 许可证
 
-Private
+[MIT](./LICENSE)

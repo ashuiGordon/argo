@@ -158,4 +158,4 @@ Four deployment types available from within conversations:
 
 ## License
 
-Private
+[MIT](./LICENSE)
