@@ -13,3 +13,19 @@ coverage/
 *.tsbuildinfo
 packages/daemon/data/
 .argo-deploy/
+
+# Local tooling configs
+.agents/
+.claude/
+.specify/
+skills-lock.json
+
+# Internal planning docs
+argo-split-view.html
+argo核心产品能力.md
+argo角色定义.md
+prd-argo.md
+design.md
+Argo 产品手册（完整版）.md
+specs/
+docs/
