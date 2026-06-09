@@ -1,5 +1,7 @@
 # Argo
 
+[English](./README.md) | [中文](./README.zh-CN.md)
+
 A local-first multi-agent programming collaboration platform. Argo wraps AI coding CLI tools (Claude Code, Codex) as visual agents and provides a unified interface to orchestrate them working together on your local projects.
 
 ## What is Argo?
