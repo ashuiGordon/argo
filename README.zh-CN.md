@@ -4,6 +4,8 @@
 
 本地优先的多智能体编程协作平台。Argo 将 AI 编程 CLI 工具（Claude Code、Codex）封装为可视化智能体，提供统一界面来编排它们在本地项目中协同工作。
 
+![Argo 概览](./assets/argo-overview.png)
+
 ## Argo 是什么？
 
 与传统 AI 编程助手直接调用 LLM API 不同，Argo 通过 SDK 的 async generator 将 Claude Code CLI / Codex CLI 作为子进程运行。每个 Agent 继承 CLI 工具的全部能力（文件操作、命令执行、代码搜索），同时 Argo 提供可视化、团队编排和安全控制的上层能力。

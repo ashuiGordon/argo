@@ -4,6 +4,8 @@
 
 A local-first multi-agent programming collaboration platform. Argo wraps AI coding CLI tools (Claude Code, Codex) as visual agents and provides a unified interface to orchestrate them working together on your local projects.
 
+![Argo Overview](./assets/argo-overview.png)
+
 ## What is Argo?
 
 Unlike traditional AI coding assistants that call LLM APIs directly, Argo runs Claude Code CLI / Codex CLI as subprocess agents via SDK async generators. Each agent inherits the full CLI capabilities (file operations, command execution, code search) while Argo adds visualization, team orchestration, and safety controls on top.
