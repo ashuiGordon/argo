@@ -23,7 +23,7 @@ Unlike traditional AI coding assistants that call LLM APIs directly, Argo runs C
 
 Interact with any specialized agent in a focused conversation. Streaming responses with tool-use visualization and approval cards.
 
-![Single Agent Chat](./assets/demo-single-agent.gif)
+https://github.com/ashuiGordon/argo/releases/download/v0.1.0/demo-single-agent.mp4
 
 ## Architecture
 
@@ -56,7 +56,7 @@ All data stored locally in SQLite. No cloud dependency.
 
 Agents are fully customizable — create your own with custom system prompts, model selection, tool permissions, MCP servers, and skills.
 
-![Agent Configuration](./assets/demo-agent-config.gif)
+https://github.com/ashuiGordon/argo/releases/download/v0.1.0/demo-agent-config.mp4
 
 ## Team Collaboration
 
@@ -72,7 +72,7 @@ When multiple agents are assigned to a conversation:
 - **Auto** — Moderator has full autonomy to decide which agents to invoke
 - **Feature** — Structured pipeline: Clarify → Plan → Implement → Test → Review → Commit
 
-![Team Collaboration](./assets/demo-team-collaboration.gif)
+https://github.com/ashuiGordon/argo/releases/download/v0.1.0/demo-team-collaboration.mp4
 
 ## Prerequisites
 

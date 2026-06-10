@@ -23,7 +23,7 @@
 
 与任意专业 Agent 进行专注对话。流式响应、工具调用可视化、审批卡片实时弹出。
 
-![单 Agent 对话](./assets/demo-single-agent.gif)
+https://github.com/ashuiGordon/argo/releases/download/v0.1.0/demo-single-agent.mp4
 
 ## 系统架构
 
@@ -56,7 +56,7 @@ Agent CLI 子进程
 
 Agent 完全可自定义 — 支持自定义 system prompt、模型选择、工具权限、MCP 服务器和 Skills。
 
-![Agent 配置](./assets/demo-agent-config.gif)
+https://github.com/ashuiGordon/argo/releases/download/v0.1.0/demo-agent-config.mp4
 
 ## 团队协作
 
@@ -72,7 +72,7 @@ Agent 完全可自定义 — 支持自定义 system prompt、模型选择、工�
 - **Auto** — Moderator 拥有完全自主权决定调用哪些 Agent
 - **Feature** — 结构化流水线：澄清 → 规划 → 实现 → 测试 → 审查 → 提交
 
-![团队协作](./assets/demo-team-collaboration.gif)
+https://github.com/ashuiGordon/argo/releases/download/v0.1.0/demo-team-collaboration.mp4
 
 ## 环境要求
 
