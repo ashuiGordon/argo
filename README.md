@@ -19,6 +19,12 @@ Unlike traditional AI coding assistants that call LLM APIs directly, Argo runs C
 - **One-Click Deploy** — Code generated in conversations can be previewed locally, deployed to Vercel/Netlify/Docker/Fly.io, or packaged for download
 - **MCP Extensions** — Extend agent capabilities via Model Context Protocol servers (GitHub, databases, search, browser, etc.)
 
+### Single Agent Chat
+
+Interact with any specialized agent in a focused conversation. Streaming responses with tool-use visualization and approval cards.
+
+![Single Agent Chat](./assets/demo-single-agent.gif)
+
 ## Architecture
 
 ```
@@ -48,6 +54,10 @@ All data stored locally in SQLite. No cloud dependency.
 | **Designer** | UI/UX implementation, responsive design, accessibility | Sonnet | Full |
 | **Ops** | Git operations, branch management, CI/CD, deployments | Sonnet | Full |
 
+Agents are fully customizable — create your own with custom system prompts, model selection, tool permissions, MCP servers, and skills.
+
+![Agent Configuration](./assets/demo-agent-config.gif)
+
 ## Team Collaboration
 
 When multiple agents are assigned to a conversation:
@@ -61,6 +71,8 @@ When multiple agents are assigned to a conversation:
 **Team Presets:**
 - **Auto** — Moderator has full autonomy to decide which agents to invoke
 - **Feature** — Structured pipeline: Clarify → Plan → Implement → Test → Review → Commit
+
+![Team Collaboration](./assets/demo-team-collaboration.gif)
 
 ## Prerequisites
 

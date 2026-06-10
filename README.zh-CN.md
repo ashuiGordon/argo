@@ -19,6 +19,12 @@
 - **一键部署** — 对话中生成的代码可直接本地预览、部署到 Vercel/Netlify/Docker/Fly.io、或打包下载
 - **MCP 扩展** — 通过 Model Context Protocol 服务器无限扩展 Agent 工具能力（GitHub/数据库/搜索/浏览器等）
 
+### 单 Agent 对话
+
+与任意专业 Agent 进行专注对话。流式响应、工具调用可视化、审批卡片实时弹出。
+
+![单 Agent 对话](./assets/demo-single-agent.gif)
+
 ## 系统架构
 
 ```
@@ -48,6 +54,10 @@ Agent CLI 子进程
 | **Designer** | UI/UX 实现、响应式设计、可访问性 | Sonnet | 完整 |
 | **Ops** | Git 操作、分支管理、CI/CD、部署 | Sonnet | 完整 |
 
+Agent 完全可自定义 — 支持自定义 system prompt、模型选择、工具权限、MCP 服务器和 Skills。
+
+![Agent 配置](./assets/demo-agent-config.gif)
+
 ## 团队协作
 
 当多个 Agent 参与同一对话时：
@@ -61,6 +71,8 @@ Agent CLI 子进程
 **团队预设：**
 - **Auto** — Moderator 拥有完全自主权决定调用哪些 Agent
 - **Feature** — 结构化流水线：澄清 → 规划 → 实现 → 测试 → 审查 → 提交
+
+![团队协作](./assets/demo-team-collaboration.gif)
 
 ## 环境要求
 
