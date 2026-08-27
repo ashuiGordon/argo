@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#07090b" />
+    <meta
+      name="description"
+      content="Argo is a local-first multi-agent programming workspace for orchestrating Claude Code and Codex as a visual engineering team."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Argo" />
+    <meta property="og:title" content="Argo — Code with agents, locally" />
+    <meta
+      property="og:description"
+      content="Give one mission to a visual team that plans, builds, tests, and reviews in parallel—on your machine."
+    />
+    <meta property="og:url" content="https://ashuigordon.github.io/argo/" />
+    <meta property="og:image" content="https://ashuigordon.github.io/argo/assets/og-cover.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Argo — Code with agents, locally" />
+    <meta
+      name="twitter:description"
+      content="A local-first command deck for Claude Code and Codex."
+    />
+    <meta name="twitter:image" content="https://ashuigordon.github.io/argo/assets/og-cover.png" />
+    <link rel="canonical" href="https://ashuigordon.github.io/argo/" />
+    <link rel="icon" type="image/png" href="./assets/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preload" href="./assets/hero-poster.png" as="image" />
+    <link rel="stylesheet" href="./styles.css" />
+    <title>Argo — Code with agents, locally</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" data-header>
+      <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="brand-pill" href="#top" aria-label="Argo home">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+          </span>
+          <span>argo</span>
+        </a>
+
+        <div class="nav-links" id="nav-links">
+          <a href="#product">product</a>
+          <a href="#workflow">workflow</a>
+          <a href="#agents">agents</a>
+          <a href="#safety">safety</a>
+        </div>
+
+        <div class="nav-actions">
+          <a
+            class="language-link"
+            href="https://github.com/ashuiGordon/argo/blob/001-multi-agent-platform/README.zh-CN.md"
+            target="_blank"
+            rel="noreferrer"
+            >中文</a
+          >
+          <a
+            class="primary-pill"
+            href="https://github.com/ashuiGordon/argo"
+            target="_blank"
+            rel="noreferrer"
+          >
+            view on github <span aria-hidden="true">↗</span>
+          </a>
+          <button
+            class="menu-button"
+            type="button"
+            aria-label="Open navigation"
+            aria-expanded="false"
+            aria-controls="nav-links"
+            data-menu-button
+          >
+            <span></span><span></span>
+          </button>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="hero-media" aria-hidden="true">
+          <img src="./assets/hero-poster.png" alt="" />
+          <video
+            data-hero-video
+            muted
+            loop
+            autoplay
+            playsinline
+            poster="./assets/hero-poster.png"
+          >
+            <source src="./assets/argo-hero.mp4" type="video/mp4" />
+          </video>
+        </div>
+        <div class="hero-noise" aria-hidden="true"></div>
+        <div class="hero-shade" aria-hidden="true"></div>
+        <div class="hero-spotlight" aria-hidden="true"></div>
+
+        <div class="hero-words" id="hero-title">
+          <span class="hero-word hero-word-one">orchestrate</span>
+          <span class="hero-word hero-word-two">agents</span>
+          <span class="hero-word hero-word-three">locally</span>
+        </div>
+
+        <p class="hero-copy">
+          A local-first command deck for Claude Code and Codex. Give one mission to a team that
+          plans, builds, tests, and reviews in parallel.
+        </p>
+
+        <div class="hero-stat hero-stat-top">
+          <span class="stat-line" aria-hidden="true"></span>
+          <div><strong>8</strong><span>specialist agents</span></div>
+        </div>
+        <div class="hero-stat hero-stat-left">
+          <div><strong>5×</strong><span>parallel worktrees</span></div>
+          <span class="stat-line reverse" aria-hidden="true"></span>
+        </div>
+        <div class="hero-stat hero-stat-right">
+          <span class="stat-line reverse" aria-hidden="true"></span>
+          <div><strong>0</strong><span>cloud dependency</span></div>
+        </div>
+
+        <div class="hero-foot">
+          <a class="scroll-cue" href="#product">
+            <span>see how it works</span>
+            <span aria-hidden="true">↓</span>
+          </a>
+          <button class="video-control" type="button" data-video-control aria-pressed="false">
+            <span class="video-control-icon" aria-hidden="true">Ⅱ</span>
+            <span class="video-control-label">pause motion</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="manifesto section-pad" id="product" aria-labelledby="manifesto-title">
+        <div class="eyebrow reveal">01 / THE WORKSPACE</div>
+        <div class="manifesto-grid">
+          <h2 id="manifesto-title" class="display-heading reveal">
+            One brief.<br />A full engineering crew.
+          </h2>
+          <div class="manifesto-copy reveal">
+            <p>
+              Argo turns the coding CLIs you already trust into visual, collaborative agents. The
+              model stays inside its native toolchain; Argo gives the team a shared room, an
+              orchestrator, and clear human control.
+            </p>
+            <div class="inline-proof" aria-label="Supported runtimes">
+              <span>Claude Code</span>
+              <i aria-hidden="true"></i>
+              <span>Codex CLI</span>
+              <i aria-hidden="true"></i>
+              <span>your machine</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="demo-section section-pad" id="workflow" aria-labelledby="demo-title">
+        <div class="section-intro reveal">
+          <div>
+            <div class="eyebrow">02 / SEE THE TEAM THINK</div>
+            <h2 id="demo-title">One interface.<br />Every moving part.</h2>
+          </div>
+          <p>
+            Follow the conversation, inspect tool calls, approve sensitive actions, and open every
+            artifact without dropping back to raw terminal output.
+          </p>
+        </div>
+
+        <div class="demo-tabs reveal" role="tablist" aria-label="Argo product demos">
+          <button
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="demo-panel"
+            data-demo-tab="team"
+          >
+            <span>01</span> team mode
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="demo-panel"
+            data-demo-tab="single"
+          >
+            <span>02</span> single agent
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="demo-panel"
+            data-demo-tab="studio"
+          >
+            <span>03</span> agent studio
+          </button>
+        </div>
+
+        <div class="product-frame reveal" id="demo-panel" role="tabpanel">
+          <div class="frame-bar">
+            <div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+            <span data-demo-kicker>TEAM MODE · LIVE ORCHESTRATION</span>
+            <span class="frame-status"><i></i> local</span>
+          </div>
+          <video
+            data-demo-video
+            muted
+            loop
+            playsinline
+            controls
+            preload="metadata"
+            poster="./assets/demo-team-collaboration-poster.jpg"
+            aria-label="Argo team collaboration demo"
+          >
+            <source src="./assets/demo-team-collaboration.mp4" type="video/mp4" />
+          </video>
+        </div>
+        <p class="demo-caption reveal" data-demo-caption>
+          A moderator routes the mission, specialists work in isolated branches, and Argo
+          synthesizes the result into one response.
+        </p>
+      </section>
+
+      <section class="process-section section-pad" aria-labelledby="process-title">
+        <div class="eyebrow reveal">03 / FROM BRIEF TO MERGE</div>
+        <h2 id="process-title" class="process-heading reveal">
+          The speed of parallel work.<br />The clarity of one thread.
+        </h2>
+        <div class="process-flow reveal">
+          <article>
+            <span class="step-number">01</span>
+            <div class="step-symbol">→</div>
+            <h3>Brief</h3>
+            <p>Describe the outcome once, in plain language.</p>
+          </article>
+          <article>
+            <span class="step-number">02</span>
+            <div class="step-symbol split">⋔</div>
+            <h3>Route</h3>
+            <p>The moderator picks the right specialists and sequence.</p>
+          </article>
+          <article>
+            <span class="step-number">03</span>
+            <div class="step-symbol branch">⑂</div>
+            <h3>Build</h3>
+            <p>Up to five agents work in parallel, isolated by Git worktrees.</p>
+          </article>
+          <article>
+            <span class="step-number">04</span>
+            <div class="step-symbol">✓</div>
+            <h3>Synthesize</h3>
+            <p>Review the evidence and receive one coherent result.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="agents-section section-pad" id="agents" aria-labelledby="agents-title">
+        <div class="agents-header reveal">
+          <div>
+            <div class="eyebrow">04 / BUILT-IN CREW</div>
+            <h2 id="agents-title">Eight roles.<br />Zero role-play.</h2>
+          </div>
+          <p>
+            Each agent has a focused mandate, model choice, and permission profile. Use the crew as
+            shipped or create your own.
+          </p>
+        </div>
+
+        <div class="agent-grid">
+          <article class="agent-card reveal">
+            <div class="agent-top">
+              <img src="./assets/agents/Architect.png" alt="" loading="lazy" />
+              <span>READ ONLY</span>
+            </div>
+            <div><span class="agent-index">01</span><h3>Architect</h3></div>
+            <p>Maps systems, diagnoses structure, and makes the hard tradeoffs visible.</p>
+          </article>
+          <article class="agent-card reveal">
+            <div class="agent-top">
+              <img src="./assets/agents/Planner.png" alt="" loading="lazy" />
+              <span>READ ONLY</span>
+            </div>
+            <div><span class="agent-index">02</span><h3>Planner</h3></div>
+            <p>Turns requirements into ordered, verifiable work.</p>
+          </article>
+          <article class="agent-card reveal">
+            <div class="agent-top">
+              <img src="./assets/agents/Executor.png" alt="" loading="lazy" />
+              <span>FULL ACCESS</span>
+            </div>
+            <div><span class="agent-index">03</span><h3>Executor</h3></div>
+            <p>Implements focused changes with an eye for minimal diffs.</p>
+          </article>
+          <article class="agent-card reveal">
+            <div class="agent-top">
+              <img src="./assets/agents/Reviewer.png" alt="" loading="lazy" />
+              <span>READ ONLY</span>
+            </div>
+            <div><span class="agent-index">04</span><h3>Reviewer</h3></div>
+            <p>Checks the spec, security posture, and code quality before handoff.</p>
+          </article>
+          <article class="agent-card reveal">
+            <div class="agent-top">
+              <img src="./assets/agents/Debugger.png" alt="" loading="lazy" />
+              <span>FULL ACCESS</span>
+            </div>
+            <div><span class="agent-index">05</span><h3>Debugger</h3></div>
+            <p>Reproduces failures, follows evidence, and lands the fix.</p>
+          </article>
+          <article class="agent-card reveal">
+            <div class="agent-top">
+              <img src="./assets/agents/Tester.png" alt="" loading="lazy" />
+              <span>FULL ACCESS</span>
+            </div>
+            <div><span class="agent-index">06</span><h3>Tester</h3></div>
+            <p>Builds coverage around happy paths, edge cases, and regressions.</p>
+          </article>
+          <article class="agent-card reveal">
+            <div class="agent-top">
+              <img src="./assets/agents/Designer.png" alt="" loading="lazy" />
+              <span>FULL ACCESS</span>
+            </div>
+            <div><span class="agent-index">07</span><h3>Designer</h3></div>
+            <p>Shapes clear, responsive, and accessible product experiences.</p>
+          </article>
+          <article class="agent-card reveal">
+            <div class="agent-top">
+              <img src="./assets/agents/Ops.png" alt="" loading="lazy" />
+              <span>FULL ACCESS</span>
+            </div>
+            <div><span class="agent-index">08</span><h3>Ops</h3></div>
+            <p>Handles branches, releases, and deployment mechanics.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="safety-section section-pad" id="safety" aria-labelledby="safety-title">
+        <div class="safety-copy reveal">
+          <div class="eyebrow">05 / HUMAN IN THE LOOP</div>
+          <h2 id="safety-title">Autonomy that<br />knows its limits.</h2>
+          <p>
+            Every tool call passes through a four-level risk classifier. Routine reads keep moving;
+            sensitive writes stop for a decision you can understand.
+          </p>
+          <ul class="risk-legend" aria-label="Risk levels">
+            <li><i class="risk-low"></i>low</li>
+            <li><i class="risk-medium"></i>medium</li>
+            <li><i class="risk-high"></i>high</li>
+            <li><i class="risk-critical"></i>critical</li>
+          </ul>
+        </div>
+
+        <div class="approval-stage reveal">
+          <div class="approval-glow" aria-hidden="true"></div>
+          <article class="approval-card">
+            <div class="approval-head">
+              <span><i></i> APPROVAL REQUIRED</span>
+              <span>HIGH RISK</span>
+            </div>
+            <div class="approval-agent">
+              <img src="./assets/agents/Ops.png" alt="" loading="lazy" />
+              <div><strong>Ops wants to run</strong><span>Git operation · working tree</span></div>
+            </div>
+            <pre><code>git push origin feature/agent-routing</code></pre>
+            <p>This action updates a remote branch and may affect collaborators.</p>
+            <div class="approval-buttons" aria-hidden="true">
+              <span>deny</span><span>always allow</span><span class="approve">approve</span>
+            </div>
+          </article>
+          <div class="local-badge">
+            <span class="local-orbit" aria-hidden="true"><i></i></span>
+            <div><strong>Local by default</strong><span>SQLite · your files · your credentials</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="extensions-section section-pad" aria-labelledby="extensions-title">
+        <div class="extensions-grid">
+          <div class="reveal">
+            <div class="eyebrow">06 / BRING YOUR TOOLCHAIN</div>
+            <h2 id="extensions-title">Native CLI power.<br />A wider horizon.</h2>
+          </div>
+          <p class="reveal">
+            Connect MCP servers, compose reusable skills, pin the context that matters, and deploy
+            what your agents build—all without routing your project through an Argo cloud.
+          </p>
+        </div>
+        <div class="capability-marquee reveal" aria-label="Argo capabilities">
+          <div>
+            <span>MCP servers</span><i></i><span>custom skills</span><i></i><span>context memory</span><i></i
+            ><span>artifact preview</span><i></i><span>version history</span><i></i
+            ><span>one-click deploy</span><i></i><span>MCP servers</span><i></i
+            ><span>custom skills</span><i></i><span>context memory</span><i></i
+            ><span>artifact preview</span><i></i><span>version history</span><i></i
+            ><span>one-click deploy</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="start-section section-pad" id="start" aria-labelledby="start-title">
+        <div class="start-heading reveal">
+          <div class="eyebrow">07 / OPEN SOURCE · MIT</div>
+          <h2 id="start-title">Your crew is<br />one clone away.</h2>
+        </div>
+        <div class="terminal-card reveal">
+          <div class="terminal-bar">
+            <div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+            <span>quick start</span>
+            <button type="button" data-copy-command>copy</button>
+          </div>
+          <pre><code><span>$</span> git clone https://github.com/ashuiGordon/argo.git
+<span>$</span> cd argo
+<span>$</span> pnpm install
+<span>$</span> pnpm dev</code></pre>
+          <div class="terminal-meta">
+            <span>requires Node.js 22+ and pnpm 9+</span>
+            <span>UI → localhost:5173</span>
+          </div>
+        </div>
+        <div class="final-cta reveal">
+          <p>Plan together. Build in parallel. Keep control.</p>
+          <a href="https://github.com/ashuiGordon/argo" target="_blank" rel="noreferrer">
+            get argo on github <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="footer-brand" href="#top">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span>argo</span>
+      </a>
+      <p>Local-first multi-agent programming collaboration.</p>
+      <div>
+        <a href="https://github.com/ashuiGordon/argo" target="_blank" rel="noreferrer">github</a>
+        <a
+          href="https://github.com/ashuiGordon/argo/blob/001-multi-agent-platform/README.md"
+          target="_blank"
+          rel="noreferrer"
+          >docs</a
+        >
+        <span>© <span data-year></span></span>
+      </div>
+    </footer>
+
+    <script src="./script.js" defer></script>
+  </body>
+</html>
