@@ -2,7 +2,7 @@ name: Deploy website to GitHub Pages
 
 on:
   push:
-    branches: ["001-multi-agent-platform"]
+    branches: ["main"]
     paths:
       - "website/**"
       - ".github/workflows/pages.yml"
